@@ -28,13 +28,13 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     href: "/my-tickets",
-    label: "Tickets",
+    label: "My Tickets",
     icon: Ticket,
-    roles: ["attendee"],
+    roles: ["attendee", "organizer"], // remove organizer
   },
   {
-    href: "/dashboard",
-    label: "Dashboard",
+    href: "/my-events",
+    label: "My Events",
     icon: LayoutDashboard,
     roles: ["organizer"],
   },
@@ -45,10 +45,10 @@ const NAV_ITEMS: NavItem[] = [
     roles: ["organizer"],
   },
   {
-    href: "/my-events",
-    label: "My Events",
+    href: "/favourites",
+    label: "Favourites",
     icon: CalendarDays,
-    roles: ["attendee"],
+    roles: ["attendee", "organizer"], //remove organzizer
   },
   {
     href: "/profile",

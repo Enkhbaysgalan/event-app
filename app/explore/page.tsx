@@ -1,4 +1,5 @@
 "use client";
+import { useAuth } from "@/lib/auth-context";
 
 import { useState } from "react";
 import { Bell, Search, SlidersHorizontal, MapPin, Flame, Music, Cpu, Palette, Dumbbell } from "lucide-react";
@@ -66,7 +67,7 @@ const MOCK_NEARBY: EventCardProps[] = [
     hostName: "Rooftop Events",
     hostAvatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80",
     attendees: 150,
-    price: 35,
+    price: 15,
     category: "Music",
   },
   {
@@ -105,6 +106,7 @@ const CATEGORIES = [
 
 // ── Component ───────────────────────────────────────────────
 export default function ExplorePage() {
+  const { user } = useAuth();
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [notifications] = useState(3);
@@ -125,10 +127,7 @@ export default function ExplorePage() {
   const nearbyFiltered = filterCards(MOCK_NEARBY);
 
   return (
-    <div
-      className="min-h-screen bg-[#0c0c12] pb-24 overflow-x-hidden"
-      style={{ fontFamily: "'DM Mono', 'Courier New', monospace" }}
-    >
+    <div className="min-h-screen bg-[#0c0c12] pb-24 overflow-x-hidden font-display">
       {/* ── Header ── */}
       <div className="px-5 pt-12 pb-4">
         <div className="flex items-center justify-between">
@@ -137,15 +136,15 @@ export default function ExplorePage() {
               Good evening,
             </p>
             <h1 className="text-[22px] font-black text-white leading-tight mt-0.5">
-              Explorer
+              {user?.displayName ?? user?.email?.split("@")[0] ?? "Explorer"}
             </h1>
           </div>
 
           {/* Notification button — square */}
-          <button className="relative w-11 h-11 bg-[#1a1a26] border border-white/8 flex items-center justify-center active:scale-90 transition-transform">
+          <button className="relative w-11 h-11 bg-[#1a1a26] border border-white/8 flex items-center justify-center active:scale-90 transition-transform rounded-lg">
             <Bell size={18} className="text-gray-300" strokeWidth={2} />
             {notifications > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-violet-500 text-[9px] font-black text-white flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary-light text-[9px] font-black text-black flex items-center justify-center">
                 {notifications}
               </span>
             )}
@@ -166,19 +165,19 @@ export default function ExplorePage() {
               placeholder="Search events, hosts..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="flex-1 bg-transparent text-[13px] text-white placeholder-gray-600 focus:outline-none"
+              className="flex-1 bg-transparent text-[13px] text-black placeholder-gray-600 focus:outline-none"
             />
           </div>
 
           {/* Filter button — square */}
-          <button className="w-11 h-11 bg-violet-600 flex items-center justify-center flex-shrink-0 active:scale-90 transition-transform">
-            <SlidersHorizontal size={16} className="text-white" strokeWidth={2.5} />
+          <button className="w-11 h-11 bg-primary-light flex items-center justify-center flex-shrink-0 active:scale-90 transition-transform">
+            <SlidersHorizontal size={16} className="text-black" strokeWidth={2.5} />
           </button>
         </div>
       </div>
 
       {/* ── Category filters ── */}
-      <div className="flex gap-2 px-5 mb-7 overflow-x-auto scrollbar-none">
+      {/* <div className="flex gap-2 px-5 mb-7 overflow-x-auto scrollbar-none">
         {CATEGORIES.map(({ label, icon: Icon }) => (
           <button
             key={label}
@@ -193,7 +192,7 @@ export default function ExplorePage() {
             {label}
           </button>
         ))}
-      </div>
+      </div> */}
 
       {/* ── Upcoming Events ── */}
       <section className="mb-8">
