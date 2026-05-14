@@ -200,7 +200,7 @@ export default function ExplorePage() {
           <h2 className="text-[13px] font-black text-white uppercase tracking-[0.15em]">
             Upcoming
           </h2>
-          <button className="text-[11px] text-violet-400 font-bold uppercase tracking-wider">
+          <button className="text-[11px] text-gray-300 font-bold uppercase tracking-wider">
             See All
           </button>
         </div>
@@ -224,7 +224,7 @@ export default function ExplorePage() {
           <h2 className="text-[13px] font-black text-white uppercase tracking-[0.15em]">
             Near You
           </h2>
-          <button className="text-[11px] text-violet-400 font-bold uppercase tracking-wider">
+          <button className="text-[11px] text-gray-300 font-bold uppercase tracking-wider">
             See All
           </button>
         </div>
@@ -248,7 +248,7 @@ export default function ExplorePage() {
           <h2 className="text-[13px] font-black text-white uppercase tracking-[0.15em]">
             This Weekend
           </h2>
-          <button className="text-[11px] text-violet-400 font-bold uppercase tracking-wider">
+          <button className="text-[11px] text-gray-300 font-bold uppercase tracking-wider">
             See All
           </button>
         </div>

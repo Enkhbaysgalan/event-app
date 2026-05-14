@@ -76,8 +76,8 @@ export default function EventCard({
           }}
           className={`absolute top-3 right-3 w-10 h-10 flex items-center justify-center border transition-all duration-200 active:scale-90 rounded-lg ${
             liked
-              ? "bg-red-500 border-red-500"
-              : "bg-[#111118]/80 border-white/10 hover:border-white/30"
+              ? "bg-red-500 border-red-500 text-white"
+              : "bg-[#111118]/80 border-white/10 hover:border-white/30 text-white"
           }`}
         >
           <LikeIcon filled={liked} />

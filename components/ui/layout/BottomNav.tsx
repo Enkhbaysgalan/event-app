@@ -11,6 +11,7 @@ import {
   LayoutDashboard,
   User,
 } from "lucide-react";
+import LikeIcon from "@/components/icons/recHeart";
 
 interface NavItem {
   href: string;
@@ -47,7 +48,7 @@ const NAV_ITEMS: NavItem[] = [
   {
     href: "/favourites",
     label: "Favourites",
-    icon: CalendarDays,
+    icon: LikeIcon,
     roles: ["attendee", "organizer"], //remove organzizer
   },
   {
@@ -84,7 +85,7 @@ export default function BottomNav() {
                   href={href}
                   className={`flex flex-col items-center justify-center gap-0.5 h-full w-full rounded-xl transition-all duration-200 active:scale-95 ${
                     isActive
-                      ? "text-violet-600"
+                      ? "text-primary-dark"
                       : "text-gray-400 hover:text-gray-600"
                   }`}
                 >
@@ -94,9 +95,6 @@ export default function BottomNav() {
                       strokeWidth={isActive ? 2.2 : 1.8}
                       className="transition-transform duration-200"
                     />
-                    {isActive && (
-                      <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-violet-600" />
-                    )}
                   </span>
                   <span
                     className={`text-[10px] font-medium tracking-wide transition-all ${
