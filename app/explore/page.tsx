@@ -46,7 +46,8 @@ const MOCK_UPCOMING: EventCardProps[] = [
   {
     id: "4",
     title: "Marathon City Run — Summer Edition",
-    image: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=600&q=80",
+    image: "",
+    // image: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=600&q=80",
     date: "29",
     month: "JUN",
     hostName: "RunCrew UB",
