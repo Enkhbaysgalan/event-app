@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
-import FavouriteEventCard from "@/components/events/FavouriteEVentCard";
-import { FavouriteEventCardProps } from "@/components/events/FavouriteEVentCard";
+import FavouriteEventCard from "@/components/events/FavouriteEventCard";
+import { FavouriteEventCardProps } from "@/components/events/FavouriteEventCard";
 import Image from "next/image";
 
 // ── Mock liked events ───────────────────────────────────────

@@ -81,13 +81,14 @@ export default function FavouriteEventCard({
           {/* Like button — top right square */}
           <button
             onClick={handleLike}
-            className="w-8 h-8 flex items-center justify-center border border-white/10 bg-[#1a1a26] flex-shrink-0 active:scale-90 transition-transform ml-auto"
+            className={`w-10 h-10 flex items-center justify-center border border-white/10 bg-[#1a1a26] flex-shrink-0 active:scale-90 transition-transform ml-auto rounded-lg ${
+            liked
+              ? "bg-red-500 border-red-500 text-white"
+              : "bg-[#111118]/80 border-white/10 hover:border-white/30 text-white"
+          }`}
           >
             <LikeIcon
-              size={14}
-              strokeWidth={liked ? 2 : 1.8}
               filled={liked}
-              className={liked ? "text-primary" : "text-gray-500"}
             />
           </button>
         </div>
@@ -99,7 +100,7 @@ export default function FavouriteEventCard({
 
         {/* Host row */}
         <div className="flex items-center gap-2 mb-2">
-          <div className="relative w-5 h-5 rounded-full overflow-hidden border border-primary/50 flex-shrink-0">
+          <div className="relative w-7 h-7 rounded-full overflow-hidden border-2 border-primary flex-shrink-0">
             <Image src={hostAvatar} alt={hostName} fill className="object-cover" sizes="20px" />
           </div>
           <span className="text-[11px] text-gray-400 truncate">{hostName}</span>
