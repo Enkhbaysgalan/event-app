@@ -178,7 +178,7 @@ export default function EventDetailPage() {
 
         {/* Category */}
         <div className="absolute bottom-6 left-5">
-          <span className="px-3 py-1 bg-primary text-white text-[10px] font-black uppercase tracking-widest">
+          <span className="px-3 py-1.5 bg-primary-light text-black text-[12px] font-bold uppercase tracking-wide font-display">
             {event.category}
           </span>
         </div>
@@ -194,7 +194,7 @@ export default function EventDetailPage() {
 
         {/* Info grid */}
         <div className="grid grid-cols-2 gap-2 mb-6">
-          <div className="bg-[#111118] border border-white/8 p-3 flex gap-3 items-start">
+          <div className="bg-[#111118] border border-white/8 p-2 flex gap-3 items-center">
             <div className="w-8 h-8 bg-primary/20 flex items-center justify-center flex-shrink-0">
               <Calendar size={15} className="text-primary" strokeWidth={2.5} />
             </div>
@@ -204,7 +204,7 @@ export default function EventDetailPage() {
             </div>
           </div>
 
-          <div className="bg-[#111118] border border-white/8 p-3 flex gap-3 items-start">
+          <div className="bg-[#111118] border border-white/8 p-2 flex gap-3 items-center">
             <div className="w-8 h-8 bg-primary/20 flex items-center justify-center flex-shrink-0">
               <Clock size={15} className="text-primary" strokeWidth={2.5} />
             </div>
@@ -217,7 +217,7 @@ export default function EventDetailPage() {
             </div>
           </div>
 
-          <div className="col-span-2 bg-[#111118] border border-white/8 p-3 flex gap-3 items-start">
+          <div className="col-span-2 bg-[#111118] border border-white/8 p-3 flex gap-3 items-center">
             <div className="w-8 h-8 bg-primary/20 flex items-center justify-center flex-shrink-0">
               <MapPin size={15} className="text-primary" strokeWidth={2.5} />
             </div>
@@ -352,13 +352,13 @@ export default function EventDetailPage() {
       <div className="fixed bottom-0 left-0 right-0 z-50">
         <div className="max-w-lg mx-auto px-5 pb-6 pt-4 bg-gradient-to-t from-[#0c0c12] via-[#0c0c12] to-transparent">
           <div className="flex items-center gap-3">
-            <div className="bg-[#111118] border border-white/10 px-4 py-4 flex flex-col items-center justify-center flex-shrink-0">
+            <div className="h-[50px] bg-[#111118] border border-white/10 px-4 py-4 flex flex-col items-center justify-center flex-shrink-0">
               <p className="text-[9px] text-gray-600 uppercase tracking-widest font-black leading-none mb-0.5">Price</p>
-              <p className="text-[20px] font-black text-white leading-none">
-                {event.price === 0 ? "FREE" : `$${event.price}`}
+              <p className="text-[12px] font-black text-white leading-none">
+                {event.price === 0 ? "FREE" : `${event.price}k`}
               </p>
             </div>
-            <button className="flex-1 h-[60px] bg-primary font-display font-black text-[15px] uppercase tracking-widest text-white active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
+            <button className="flex-1 h-[50px] bg-primary-light font-display font-black text-[14px] uppercase tracking-widest text-white active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
               Buy Ticket
               <ChevronRight size={18} strokeWidth={3} />
             </button>

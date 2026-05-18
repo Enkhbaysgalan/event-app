@@ -18,9 +18,9 @@ module.exports = {
           dark: "#06302B",
         },
         secondary: {
-          DEFAULT: "#d946ef",  // fuchsia-500
-          light: "#e879f9",    // fuchsia-400
-          dark: "#c026d3",     // fuchsia-600
+          DEFAULT: "#d946ef",  
+          light: "#e879f9",    
+          dark: "#c026d3",    
         },
         surface: {
           DEFAULT: "#1a1a26",  // card background
