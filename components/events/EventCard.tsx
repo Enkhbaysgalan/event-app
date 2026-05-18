@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Users } from "lucide-react";
 import LikeIcon from "../icons/recHeart";
 import Link from "next/link";
+import { User } from "lucide-react";
 
 export interface EventCardProps {
   id: string;
@@ -101,15 +102,24 @@ export default function EventCard({
             <div className="flex items-center gap-2">
               {/* Host avatar — circle (only non-square element) */}
               <div className="relative w-7 h-7 rounded-full overflow-hidden border-2 border-primary flex-shrink-0">
-                <Image
-                  src={hostAvatar}
-                  alt={hostName}
-                  fill
-                  className="object-cover"
-                  sizes="28px"
-                />
+                {hostAvatar ? (
+                  <Image
+                    src={hostAvatar}
+                    alt={hostName}
+                    fill
+                    className="object-cover"
+                    sizes="28px"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = "none";
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <User size={14} className="text-gray-500" strokeWidth={2} />
+                  </div>
+                )}
               </div>
-              <span className="text-[11px] text-gray-400 font-medium truncate max-w-[80px]">
+              <span className="text-[11px] text-gray-400 font-medium truncate max-w-[100px]">
                 {hostName}
               </span>
             </div>
