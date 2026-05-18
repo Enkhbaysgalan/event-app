@@ -62,9 +62,9 @@ export default function LoginPage() {
         const cred = await createUserWithEmailAndPassword(auth, email, password);
         await saveUserToFirestore(cred.user.uid, cred.user.email, name, role);
       }
-      router.push("/");
+      router.push("/explore");
     } catch (e: any) {
-      setError(e.code + ": " + e.message);
+      setError(friendlyError(e.code));
     } finally {
       setLoading(false);
     }
@@ -82,9 +82,9 @@ export default function LoginPage() {
         cred.user.displayName,
         role
       );
-      router.push("/");
+      router.push("/explore");
     } catch (e: any) {
-      setError(e.code + ": " + e.message);
+      setError(friendlyError(e.code));
     } finally {
       setLoading(false);
     }

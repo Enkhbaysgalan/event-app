@@ -217,7 +217,7 @@ export default function EventDetailPage() {
             </div>
           </div>
 
-          <div className="col-span-2 bg-[#111118] border border-white/8 p-3 flex gap-3 items-center">
+          <div className="col-span-2 bg-[#111118] border border-white/8 p-2 flex gap-3 items-center">
             <div className="w-8 h-8 bg-primary/20 flex items-center justify-center flex-shrink-0">
               <MapPin size={15} className="text-primary" strokeWidth={2.5} />
             </div>
