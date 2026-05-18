@@ -6,10 +6,18 @@ import { useRouter, useParams } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import {
-  ArrowLeft, Calendar, Clock, MapPin,
-  Users, ChevronRight, Share2, Loader2,
+  ArrowLeft,
+  Calendar,
+  Clock,
+  MapPin,
+  Users,
+  ChevronRight,
+  Share2,
+  Loader2,
 } from "lucide-react";
 import LikeIcon from "@/components/icons/recHeart";
+import { toast } from "sonner";
+import confetti from "canvas-confetti";
 
 interface Artist {
   id?: string;
@@ -50,6 +58,7 @@ export default function EventDetailPage() {
   const [loading, setLoading] = useState(true);
   const [liked, setLiked] = useState(false);
   const [notFound, setNotFound] = useState(false);
+  const [loadingBuy, setLoadingBuy] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -113,7 +122,9 @@ export default function EventDetailPage() {
         <div className="w-16 h-16 border border-dashed border-white/10 flex items-center justify-center">
           <span className="text-3xl">🎪</span>
         </div>
-        <p className="text-white font-display font-black text-[18px] uppercase">Event Not Found</p>
+        <p className="text-white font-display font-black text-[18px] uppercase">
+          Event Not Found
+        </p>
         <button
           onClick={() => router.back()}
           className="px-4 py-2 bg-primary text-white text-[11px] font-black uppercase tracking-widest"
@@ -124,13 +135,52 @@ export default function EventDetailPage() {
     );
   }
 
-  const soldPct = event.capacity > 0
-    ? Math.min(100, Math.round((event.attendees / event.capacity) * 100))
-    : 0;
+  const soldPct =
+    event.capacity > 0
+      ? Math.min(100, Math.round((event.attendees / event.capacity) * 100))
+      : 0;
+
+  const handleToastClick = () => {
+    toast.promise<{ name: string }>(
+      () =>
+        new Promise((resolve) =>
+          setTimeout(() => resolve({ name: "Event" }), 2000),
+        ),
+      {
+        loading: "Loading...",
+        success: (data) => `${data.name} has been reported`,
+        error: "Error",
+        style: {
+          background: "white",
+        },
+      },
+    );
+  };
+
+  const handleBuyClick = () => {
+    setLoadingBuy(true);
+    // simulate API / order process
+    setTimeout(() => {
+      setLoadingBuy(false);
+      toast.success("Ticket purchased successfully!", {
+      description: "Your ticket has been added to your account.",
+      style: {
+        background : "#00DF81",
+        color: "white",
+      }
+    });
+      confetti({
+      particleCount: 120,
+      spread: 80,
+      origin: { y: 0.6 },
+      colors: ["#7c3aed", "#d946ef", "#ffffff", "#a78bfa"],
+    });
+    }, 2000);
+    
+  };
 
   return (
     <div className="min-h-screen bg-[#0c0c12] text-white pb-32">
-
       {/* ── Hero ── */}
       <div className="relative w-full h-[340px] bg-[#111118]">
         {event.image ? (
@@ -141,7 +191,9 @@ export default function EventDetailPage() {
             className="object-cover"
             sizes="100vw"
             priority
-            onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = "none";
+            }}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
@@ -186,7 +238,6 @@ export default function EventDetailPage() {
 
       {/* ── Content ── */}
       <div className="px-5 -mt-2">
-
         {/* Title */}
         <h1 className="font-display font-black text-[26px] uppercase leading-tight tracking-wide mt-4 mb-5">
           {event.title}
@@ -199,8 +250,12 @@ export default function EventDetailPage() {
               <Calendar size={15} className="text-primary" strokeWidth={2.5} />
             </div>
             <div>
-              <p className="text-[9px] text-gray-600 uppercase tracking-widest font-bold mb-0.5">Date</p>
-              <p className="text-[12px] text-white font-bold leading-snug">{event.date}</p>
+              <p className="text-[9px] text-gray-600 uppercase tracking-widest font-bold mb-0.5">
+                Date
+              </p>
+              <p className="text-[12px] text-white font-bold leading-snug">
+                {event.date}
+              </p>
             </div>
           </div>
 
@@ -209,8 +264,12 @@ export default function EventDetailPage() {
               <Clock size={15} className="text-primary" strokeWidth={2.5} />
             </div>
             <div>
-              <p className="text-[9px] text-gray-600 uppercase tracking-widest font-bold mb-0.5">Time</p>
-              <p className="text-[12px] text-white font-bold leading-snug">{event.time}</p>
+              <p className="text-[9px] text-gray-600 uppercase tracking-widest font-bold mb-0.5">
+                Time
+              </p>
+              <p className="text-[12px] text-white font-bold leading-snug">
+                {event.time}
+              </p>
               {event.duration ? (
                 <p className="text-[10px] text-gray-600">{event.duration}</p>
               ) : null}
@@ -222,13 +281,22 @@ export default function EventDetailPage() {
               <MapPin size={15} className="text-primary" strokeWidth={2.5} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[9px] text-gray-600 uppercase tracking-widest font-bold mb-0.5">Location</p>
-              <p className="text-[13px] text-white font-bold">{event.location}</p>
+              <p className="text-[9px] text-gray-600 uppercase tracking-widest font-bold mb-0.5">
+                Location
+              </p>
+              <p className="text-[13px] text-white font-bold">
+                {event.location}
+              </p>
               {event.locationDetail ? (
-                <p className="text-[11px] text-gray-500 mt-0.5">{event.locationDetail}</p>
+                <p className="text-[11px] text-gray-500 mt-0.5">
+                  {event.locationDetail}
+                </p>
               ) : null}
             </div>
-            <ChevronRight size={16} className="text-gray-700 flex-shrink-0 mt-1" />
+            <ChevronRight
+              size={16}
+              className="text-gray-700 flex-shrink-0 mt-1"
+            />
           </div>
         </div>
 
@@ -239,14 +307,21 @@ export default function EventDetailPage() {
               <div className="flex items-center gap-2">
                 <Users size={13} className="text-gray-500" strokeWidth={2.5} />
                 <span className="text-[11px] text-gray-500 font-bold">
-                  <span className="text-white">{event.attendees.toLocaleString()}</span>
-                  {" "}/ {event.capacity.toLocaleString()} going
+                  <span className="text-white">
+                    {event.attendees.toLocaleString()}
+                  </span>{" "}
+                  / {event.capacity.toLocaleString()} going
                 </span>
               </div>
-              <span className="text-[11px] font-black text-primary">{soldPct}% filled</span>
+              <span className="text-[11px] font-black text-primary">
+                {soldPct}% filled
+              </span>
             </div>
             <div className="h-1.5 bg-white/5 w-full">
-              <div className="h-full bg-primary transition-all duration-700" style={{ width: `${soldPct}%` }} />
+              <div
+                className="h-full bg-primary transition-all duration-700"
+                style={{ width: `${soldPct}%` }}
+              />
             </div>
           </div>
         )}
@@ -255,9 +330,11 @@ export default function EventDetailPage() {
 
         {/* Host */}
         <div className="mb-6">
-          <p className="text-[10px] text-gray-600 uppercase tracking-widest font-black mb-3">Hosted by</p>
+          <p className="text-[10px] text-gray-600 uppercase tracking-widest font-black mb-3">
+            Hosted by
+          </p>
           <div className="flex items-center gap-3">
-            <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-primary/40 flex-shrink-0 bg-[#1a1a26]">
+            <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-primary flex-shrink-0 bg-[#1a1a26]">
               {event.host.avatar ? (
                 <Image
                   src={event.host.avatar}
@@ -265,14 +342,20 @@ export default function EventDetailPage() {
                   fill
                   className="object-cover"
                   sizes="48px"
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = "none";
+                  }}
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-lg">👤</div>
+                <div className="w-full h-full flex items-center justify-center text-lg">
+                  👤
+                </div>
               )}
             </div>
             <div className="flex-1">
-              <h3 className="font-display font-black text-[16px] uppercase tracking-wide">{event.host.name}</h3>
+              <h3 className="font-display font-black text-[16px] uppercase tracking-wide">
+                {event.host.name}
+              </h3>
               <p className="text-[11px] text-gray-500">
                 {event.host.events} events · {event.host.followers} followers
               </p>
@@ -287,8 +370,12 @@ export default function EventDetailPage() {
 
         {/* Description */}
         <div className="mb-6">
-          <p className="text-[10px] text-gray-600 uppercase tracking-widest font-black mb-3">About</p>
-          <p className="text-[13px] text-gray-400 leading-relaxed font-sans">{event.description}</p>
+          <p className="text-[10px] text-gray-600 uppercase tracking-widest font-black mb-3">
+            About
+          </p>
+          <p className="text-[13px] text-gray-400 leading-relaxed font-sans">
+            {event.description}
+          </p>
         </div>
 
         {/* Artists — only show if exist */}
@@ -301,7 +388,10 @@ export default function EventDetailPage() {
               </p>
               <div className="flex flex-col gap-2">
                 {event.artists.map((artist, i) => (
-                  <div key={artist.id ?? i} className="flex items-center gap-3 bg-[#111118] border border-white/8 p-3">
+                  <div
+                    key={artist.id ?? i}
+                    className="flex items-center gap-3 bg-[#111118] border border-white/8 p-3"
+                  >
                     <div className="relative w-10 h-10 rounded-full overflow-hidden border border-white/10 flex-shrink-0 bg-[#1a1a26]">
                       {artist.avatar ? (
                         <Image
@@ -310,15 +400,24 @@ export default function EventDetailPage() {
                           fill
                           className="object-cover"
                           sizes="40px"
-                          onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display =
+                              "none";
+                          }}
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-sm">🎵</div>
+                        <div className="w-full h-full flex items-center justify-center text-sm">
+                          🎵
+                        </div>
                       )}
                     </div>
                     <div className="flex-1">
-                      <p className="font-display font-black text-[14px] uppercase tracking-wide">{artist.name}</p>
-                      <p className="text-[10px] text-gray-600 uppercase tracking-wider">{artist.role}</p>
+                      <p className="font-display font-black text-[14px] uppercase tracking-wide">
+                        {artist.name}
+                      </p>
+                      <p className="text-[10px] text-gray-600 uppercase tracking-wider">
+                        {artist.role}
+                      </p>
                     </div>
                     <div className="w-1.5 h-1.5 bg-primary" />
                   </div>
@@ -332,20 +431,34 @@ export default function EventDetailPage() {
 
         {/* Map placeholder */}
         <div className="mb-6">
-          <p className="text-[10px] text-gray-600 uppercase tracking-widest font-black mb-3">Location</p>
+          <p className="text-[10px] text-gray-600 uppercase tracking-widest font-black mb-3">
+            Location
+          </p>
           <div className="w-full h-[160px] bg-[#111118] border border-white/8 flex flex-col items-center justify-center gap-2 relative overflow-hidden">
             <div
               className="absolute inset-0 opacity-[0.04]"
               style={{
-                backgroundImage: "linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)",
+                backgroundImage:
+                  "linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)",
                 backgroundSize: "30px 30px",
               }}
             />
             <MapPin size={24} className="text-primary/40" strokeWidth={1.5} />
-            <p className="text-[11px] text-gray-700 uppercase tracking-widest font-black">Map Coming Soon</p>
-            <p className="text-[10px] text-gray-800 font-mono">Google Maps integration</p>
+            <p className="text-[11px] text-gray-700 uppercase tracking-widest font-black">
+              Map Coming Soon
+            </p>
+            <p className="text-[10px] text-gray-800 font-mono">
+              Google Maps integration
+            </p>
           </div>
         </div>
+        <div className="h-px bg-white/5 mb-6" />
+        <p
+          onClick={handleToastClick}
+          className="text-[10px] text-red-500 uppercase tracking-widest text-center font-black cursor-pointer"
+        >
+          Report Event
+        </p>
       </div>
 
       {/* ── Sticky CTA ── */}
@@ -353,14 +466,26 @@ export default function EventDetailPage() {
         <div className="max-w-lg mx-auto px-5 pb-6 pt-4 bg-gradient-to-t from-[#0c0c12] via-[#0c0c12] to-transparent">
           <div className="flex items-center gap-3">
             <div className="h-[50px] bg-[#111118] border border-white/10 px-4 py-4 flex flex-col items-center justify-center flex-shrink-0">
-              <p className="text-[9px] text-gray-600 uppercase tracking-widest font-black leading-none mb-0.5">Price</p>
+              <p className="text-[9px] text-gray-600 uppercase tracking-widest font-black leading-none mb-0.5">
+                Price
+              </p>
               <p className="text-[12px] font-black text-white leading-none">
                 {event.price === 0 ? "FREE" : `${event.price}k`}
               </p>
             </div>
-            <button className="flex-1 h-[50px] bg-primary-light font-display font-black text-[14px] uppercase tracking-widest text-white active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
-              Buy Ticket
-              <ChevronRight size={18} strokeWidth={3} />
+            <button
+              onClick={handleBuyClick}
+              disabled={loadingBuy}
+              className="flex-1 h-[50px] bg-primary-light font-display font-black text-[14px] uppercase tracking-widest text-white active:scale-[0.98] transition-transform flex items-center justify-center gap-2 disabled:opacity-70"
+            >
+              {loadingBuy ? (
+                <Loader2 className="animate-spin" size={20} />
+              ) : (
+                <>
+                  Buy Ticket
+                  <ChevronRight size={18} strokeWidth={3} />
+                </>
+              )}
             </button>
           </div>
         </div>

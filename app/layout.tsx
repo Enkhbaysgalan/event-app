@@ -1,9 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import {  DM_Mono, Barlow_Condensed, DM_Sans } from "next/font/google";
+import { DM_Mono, Barlow_Condensed, DM_Sans } from "next/font/google";
 import { AuthProvider } from "@/lib/auth-context";
 import BottomNav from "@/components/ui/layout/BottomNav";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
-
 
 const dmMono = DM_Mono({
   subsets: ["latin"],
@@ -20,7 +20,7 @@ const barlowCondensed = Barlow_Condensed({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800", "900"],
   variable: "--font-display",
-})
+});
 
 export const metadata: Metadata = {
   title: "Eventify",
@@ -40,12 +40,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${dmMono.variable} ${dmSans.variable} ${barlowCondensed.variable}`}>
+    <html
+      lang="en"
+      className={`${dmMono.variable} ${dmSans.variable} ${barlowCondensed.variable}`}
+    >
       <body className="bg-gray-50 antialiased font-sans">
         <AuthProvider>
           <main className="max-w-lg mx-auto min-h-screen bg-white relative">
             {children}
           </main>
+          <Toaster position="top-center" />
           <BottomNav />
         </AuthProvider>
       </body>
