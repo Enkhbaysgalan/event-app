@@ -64,9 +64,11 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   if (!user) return null;
+  if (pathname.startsWith("/events/") && pathname !== "/events/create")
+    return null;
 
   const visibleItems = NAV_ITEMS.filter((item) =>
-    item.roles.includes(user.role)
+    item.roles.includes(user.role),
   );
 
   return (
