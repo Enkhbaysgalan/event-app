@@ -13,6 +13,7 @@ import {
   Palette,
   Dumbbell,
   Loader2,
+  BriefcaseBusiness,
 } from "lucide-react";
 import EventCard, { EventCardProps } from "@/components/events/EventCard";
 import { useRouter } from "next/navigation";
@@ -21,6 +22,7 @@ const CATEGORIES = [
   { label: "All", icon: Flame },
   { label: "Music", icon: Music },
   { label: "Tech", icon: Cpu },
+  { label: "Business", icon: BriefcaseBusiness },
   { label: "Art", icon: Palette },
   { label: "Sport", icon: Dumbbell },
 ];
@@ -33,6 +35,7 @@ export default function ExplorePage() {
   const [notifications] = useState(3);
   const [allEvents, setAllEvents] = useState<EventCardProps[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showSearch, setShowSearch] = useState(false);
 
   // ── Fetch from Firestore ──────────────────────
   useEffect(() => {
@@ -93,59 +96,96 @@ export default function ExplorePage() {
     <div className="min-h-screen bg-[#0c0c12] pb-24 overflow-x-hidden font-display">
       {/* ── Header ── */}
       <div className="px-5 pt-12 pb-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <div>
             <p className="text-[11px] text-gray-600 uppercase tracking-[0.2em] font-bold">
               Good evening,
             </p>
             <h1 className="text-[22px] font-black text-white leading-tight mt-0.5">
-              {user?.displayName ?? user?.email?.split("@")[0] ?? "Explorer"}
+              {user?.displayName ?? "Explorer"}
             </h1>
           </div>
 
-          <button onClick={!user ? handleLoginClick : undefined} 
-          className="relative min-w-11 min-h-11 bg-[#1a1a26] border border-white/8 flex items-center justify-center active:scale-90 transition-transform">
-            {!user ? (
-              <span className="px-5 text-[14px] font-bold font-display text-white uppercase tracking-wide">
-                Login
-              </span>
-            ) : (
-              <>
-                <Bell size={18} className="text-gray-300" strokeWidth={2} />
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary-light text-[9px] font-black text-black flex items-center justify-center rounded-full">
-                  3
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {/* Search toggle button */}
+            <button
+              onClick={() => setShowSearch((p) => !p)}
+              className="w-11 h-11 bg-[#1a1a26] border border-white/8 flex items-center justify-center active:scale-90 transition-transform"
+            >
+              <Search size={18} className="text-gray-300" strokeWidth={2} />
+            </button>
+
+            {/* Notification / Login */}
+            <button
+              onClick={!user ? handleLoginClick : undefined}
+              className="relative min-w-11 min-h-11 bg-[#1a1a26] border border-white/8 flex items-center justify-center active:scale-90 transition-transform"
+            >
+              {!user ? (
+                <span className="px-5 text-[14px] font-bold font-display text-white uppercase tracking-wide">
+                  Login
                 </span>
-              </>
-            )}
-          </button>
+              ) : (
+                <>
+                  <Bell size={18} className="text-gray-300" strokeWidth={2} />
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary-light text-[9px] font-black text-black flex items-center justify-center rounded-full">
+                    3
+                  </span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
+
+        {/* Expandable search bar */}
+        {showSearch && (
+          <div className="flex gap-2 mt-4">
+            <div className="flex-1 flex items-center gap-2 bg-[#1a1a26] border border-white/8 px-3 h-11">
+              <Search
+                size={15}
+                className="text-gray-600 flex-shrink-0"
+                strokeWidth={2.5}
+              />
+              <input
+                type="text"
+                placeholder="Search events, hosts..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                autoFocus
+                className="flex-1 bg-transparent text-[13px] text-white placeholder-gray-600 focus:outline-none"
+              />
+              {search && (
+                <button onClick={() => setSearch("")}>
+                  <span className="text-gray-600 text-[16px]">×</span>
+                </button>
+              )}
+            </div>
+            <button className="w-11 h-11 bg-primary-light flex items-center justify-center flex-shrink-0 active:scale-90 transition-transform">
+              <SlidersHorizontal
+                size={16}
+                className="text-black"
+                strokeWidth={2.5}
+              />
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* ── Search + Filter ── */}
-      <div className="px-5 mb-5">
-        <div className="flex gap-2">
-          <div className="flex-1 flex items-center gap-2 bg-[#1a1a26] border border-white/8 px-3 h-11">
-            <Search
-              size={15}
-              className="text-gray-600 flex-shrink-0"
-              strokeWidth={2.5}
-            />
-            <input
-              type="text"
-              placeholder="Search events, hosts..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="flex-1 bg-transparent text-[13px] text-black placeholder-gray-600 focus:outline-none"
-            />
-          </div>
-          <button className="w-11 h-11 bg-primary-light flex items-center justify-center flex-shrink-0 active:scale-90 transition-transform">
-            <SlidersHorizontal
-              size={16}
-              className="text-black"
-              strokeWidth={2.5}
-            />
+      {/* ── Categories ── */}
+      <div className="flex gap-2 px-5 mb-7 overflow-x-auto scrollbar-none">
+        {CATEGORIES.map(({ label, icon: Icon }) => (
+          <button
+            key={label}
+            onClick={() => setActiveCategory(label)}
+            className={`flex items-center gap-1.5 px-3 h-8 flex-shrink-0 text-[11px] font-bold uppercase tracking-wider border transition-all duration-150 active:scale-95 ${
+              activeCategory === label
+                ? "bg-primary border-primary text-white"
+                : "bg-transparent border-white/10 text-gray-500 hover:border-white/25 hover:text-gray-300"
+            }`}
+          >
+            <Icon size={12} strokeWidth={2.5} />
+            {label}
           </button>
-        </div>
+        ))}
       </div>
 
       {/* ── Loading ── */}
