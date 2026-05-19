@@ -8,6 +8,7 @@ import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
+  updateProfile,
 } from "firebase/auth";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -31,7 +32,7 @@ export default function LoginPage() {
     uid: string,
     email: string | null,
     displayName: string | null,
-    selectedRole: Role
+    selectedRole: Role,
   ) => {
     const userRef = doc(db, "users", uid);
     const snap = await getDoc(userRef);
@@ -56,10 +57,15 @@ export default function LoginPage() {
           cred.user.uid,
           cred.user.email,
           cred.user.displayName,
-          role
+          role,
         );
       } else {
-        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        const cred = await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password,
+        );
+        await updateProfile(cred.user, { displayName: name });
         await saveUserToFirestore(cred.user.uid, cred.user.email, name, role);
       }
       router.push("/explore");
@@ -80,7 +86,7 @@ export default function LoginPage() {
         cred.user.uid,
         cred.user.email,
         cred.user.displayName,
-        role
+        role,
       );
       router.push("/explore");
     } catch (e: any) {
@@ -116,7 +122,9 @@ export default function LoginPage() {
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-500 mb-3 shadow-lg shadow-violet-500/30">
           <span className="text-2xl">🎪</span>
         </div>
-        <h1 className="text-2xl font-bold text-white tracking-tight">Eventify</h1>
+        <h1 className="text-2xl font-bold text-white tracking-tight">
+          Eventify
+        </h1>
         <p className="text-sm text-gray-500 mt-1">
           {mode === "login" ? "Welcome back" : "Create your account"}
         </p>
@@ -124,13 +132,15 @@ export default function LoginPage() {
 
       {/* Card */}
       <div className="w-full max-w-sm bg-[#1a1a24] rounded-3xl p-6 shadow-2xl border border-white/5">
-
         {/* Mode toggle */}
         <div className="flex bg-[#0f0f13] rounded-2xl p-1 mb-6">
           {(["login", "register"] as Mode[]).map((m) => (
             <button
               key={m}
-              onClick={() => { setMode(m); setError(""); }}
+              onClick={() => {
+                setMode(m);
+                setError("");
+              }}
               className={`flex-1 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
                 mode === m
                   ? "bg-violet-600 text-white shadow-md shadow-violet-500/30"
@@ -144,7 +154,9 @@ export default function LoginPage() {
 
         {/* Role selector */}
         <div className="mb-5">
-          <p className="text-xs text-gray-500 mb-2 font-medium uppercase tracking-wider">I am a</p>
+          <p className="text-xs text-gray-500 mb-2 font-medium uppercase tracking-wider">
+            I am a
+          </p>
           <div className="flex gap-3">
             {(["attendee", "organizer"] as Role[]).map((r) => (
               <button
@@ -202,7 +214,11 @@ export default function LoginPage() {
           disabled={loading}
           className="mt-5 w-full py-3.5 bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-bold rounded-2xl shadow-lg shadow-violet-500/30 active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
         >
-          {loading ? "Please wait..." : mode === "login" ? "Log In" : "Create Account"}
+          {loading
+            ? "Please wait..."
+            : mode === "login"
+              ? "Log In"
+              : "Create Account"}
         </button>
 
         {/* Divider */}
@@ -219,10 +235,22 @@ export default function LoginPage() {
           className="w-full py-3.5 bg-white text-gray-800 font-bold rounded-2xl flex items-center justify-center gap-2 active:scale-95 transition-all duration-200 disabled:opacity-50 text-sm shadow-md"
         >
           <svg width="18" height="18" viewBox="0 0 48 48">
-            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+            <path
+              fill="#EA4335"
+              d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
+            />
+            <path
+              fill="#4285F4"
+              d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
+            />
+            <path
+              fill="#FBBC05"
+              d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
+            />
+            <path
+              fill="#34A853"
+              d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
+            />
           </svg>
           Continue with Google
         </button>

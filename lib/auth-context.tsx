@@ -15,6 +15,7 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
   signOut,
+  updateProfile
 } from "firebase/auth";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "./firebase";
@@ -37,7 +38,7 @@ interface AuthContextType {
     email: string,
     password: string,
     role: UserRole,
-    displayName: string
+    displayName: string,
   ) => Promise<void>;
   loginWithGoogle: (role?: UserRole) => Promise<void>;
   logout: () => Promise<void>;
@@ -51,7 +52,7 @@ const googleProvider = new GoogleAuthProvider();
 async function getOrCreateUserProfile(
   firebaseUser: User,
   role?: UserRole,
-  displayName?: string
+  displayName?: string,
 ): Promise<AppUser> {
   const userRef = doc(db, "users", firebaseUser.uid);
   const snap = await getDoc(userRef);
@@ -61,12 +62,11 @@ async function getOrCreateUserProfile(
     return {
       uid: firebaseUser.uid,
       email: firebaseUser.email,
-      displayName: firebaseUser.displayName,
-      photoURL: firebaseUser.photoURL,
+      displayName: firebaseUser.displayName ?? data.displayName, // ← fallback to Firestore name
+      photoURL: firebaseUser.photoURL ?? data.photoURL,
       role: data.role as UserRole,
     };
   }
-
   // New user — create profile
   const newUser: AppUser = {
     uid: firebaseUser.uid,
@@ -111,10 +111,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     email: string,
     password: string,
     role: UserRole,
-    displayName: string
+    displayName: string,
   ) => {
     setLoading(true);
     const cred = await createUserWithEmailAndPassword(auth, email, password);
+    await updateProfile(cred.user, { displayName }); // ← set on Auth too
     const appUser = await getOrCreateUserProfile(cred.user, role, displayName);
     setUser(appUser);
     setLoading(false);
