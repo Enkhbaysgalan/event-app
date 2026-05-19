@@ -3,8 +3,19 @@ import { useAuth } from "@/lib/auth-context";
 import { useEffect, useState } from "react";
 import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { Bell, Search, SlidersHorizontal, Flame, Music, Cpu, Palette, Dumbbell, Loader2 } from "lucide-react";
+import {
+  Bell,
+  Search,
+  SlidersHorizontal,
+  Flame,
+  Music,
+  Cpu,
+  Palette,
+  Dumbbell,
+  Loader2,
+} from "lucide-react";
 import EventCard, { EventCardProps } from "@/components/events/EventCard";
+import { useRouter } from "next/navigation";
 
 const CATEGORIES = [
   { label: "All", icon: Flame },
@@ -16,6 +27,7 @@ const CATEGORIES = [
 
 export default function ExplorePage() {
   const { user } = useAuth();
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [notifications] = useState(3);
@@ -73,6 +85,9 @@ export default function ExplorePage() {
   const upcomingFiltered = filterCards(upcoming);
   const nearbyFiltered = filterCards(nearby);
   const weekendFiltered = filterCards(weekend);
+  const handleLoginClick = () => {
+    router.push("/login");
+  };
 
   return (
     <div className="min-h-screen bg-[#0c0c12] pb-24 overflow-x-hidden font-display">
@@ -88,12 +103,19 @@ export default function ExplorePage() {
             </h1>
           </div>
 
-          <button className="relative w-11 h-11 bg-[#1a1a26] border border-white/8 flex items-center justify-center active:scale-90 transition-transform rounded-lg">
-            <Bell size={18} className="text-gray-300" strokeWidth={2} />
-            {notifications > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary-light text-[9px] font-black text-black flex items-center justify-center">
-                {notifications}
+          <button onClick={!user ? handleLoginClick : undefined} 
+          className="relative min-w-11 min-h-11 bg-[#1a1a26] border border-white/8 flex items-center justify-center active:scale-90 transition-transform">
+            {!user ? (
+              <span className="px-5 text-[14px] font-bold font-display text-white uppercase tracking-wide">
+                Login
               </span>
+            ) : (
+              <>
+                <Bell size={18} className="text-gray-300" strokeWidth={2} />
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary-light text-[9px] font-black text-black flex items-center justify-center rounded-full">
+                  3
+                </span>
+              </>
             )}
           </button>
         </div>
@@ -103,7 +125,11 @@ export default function ExplorePage() {
       <div className="px-5 mb-5">
         <div className="flex gap-2">
           <div className="flex-1 flex items-center gap-2 bg-[#1a1a26] border border-white/8 px-3 h-11">
-            <Search size={15} className="text-gray-600 flex-shrink-0" strokeWidth={2.5} />
+            <Search
+              size={15}
+              className="text-gray-600 flex-shrink-0"
+              strokeWidth={2.5}
+            />
             <input
               type="text"
               placeholder="Search events, hosts..."
@@ -113,7 +139,11 @@ export default function ExplorePage() {
             />
           </div>
           <button className="w-11 h-11 bg-primary-light flex items-center justify-center flex-shrink-0 active:scale-90 transition-transform">
-            <SlidersHorizontal size={16} className="text-black" strokeWidth={2.5} />
+            <SlidersHorizontal
+              size={16}
+              className="text-black"
+              strokeWidth={2.5}
+            />
           </button>
         </div>
       </div>
@@ -147,7 +177,9 @@ export default function ExplorePage() {
               </div>
             ) : (
               <div className="mx-5 h-32 border border-dashed border-white/10 flex items-center justify-center">
-                <p className="text-gray-600 text-[12px] font-mono">No events found</p>
+                <p className="text-gray-600 text-[12px] font-mono">
+                  No events found
+                </p>
               </div>
             )}
           </section>
@@ -171,7 +203,9 @@ export default function ExplorePage() {
               </div>
             ) : (
               <div className="mx-5 h-32 border border-dashed border-white/10 flex items-center justify-center">
-                <p className="text-gray-600 text-[12px] font-mono">No events found</p>
+                <p className="text-gray-600 text-[12px] font-mono">
+                  No events found
+                </p>
               </div>
             )}
           </section>
@@ -193,7 +227,9 @@ export default function ExplorePage() {
                 ))
               ) : (
                 <div className="w-full h-32 border border-dashed border-white/10 flex items-center justify-center">
-                  <p className="text-gray-600 text-[12px] font-mono">No events found</p>
+                  <p className="text-gray-600 text-[12px] font-mono">
+                    No events found
+                  </p>
                 </div>
               )}
             </div>
