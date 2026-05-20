@@ -373,17 +373,6 @@ export default function ProfilePage() {
         </button>
 
         <button
-          onClick={() => setScreen("blocked")}
-          className="flex items-center justify-between px-4 py-3.5 bg-[#111118] border border-white/8 active:scale-[0.99] transition-transform"
-        >
-          <div className="flex items-center gap-3">
-            <UserX size={15} className="text-gray-500" strokeWidth={2} />
-            <span className="text-[13px] text-white font-bold">Blocked Users</span>
-          </div>
-          <ChevronRight size={15} className="text-gray-700" />
-        </button>
-
-        <button
           onClick={handleLogout}
           className="flex items-center justify-between px-4 py-3.5 bg-red-500/10 border border-red-500/20 active:scale-[0.99] transition-transform mt-2"
         >

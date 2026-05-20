@@ -109,7 +109,6 @@ export default function ExplorePage() {
   const handleLoginClick = () => {
     router.push("/login");
   };
-  console.log(user?.displayName);
 
   return (
     <div className="min-h-screen bg-[#0c0c12] pb-24 overflow-x-hidden font-display">
