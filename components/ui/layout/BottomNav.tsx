@@ -60,10 +60,10 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 export default function BottomNav() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const pathname = usePathname();
 
-  if (!user) return null;
+  if (loading || !user) return null;
   if (pathname.startsWith("/events/"))
     return null;
 

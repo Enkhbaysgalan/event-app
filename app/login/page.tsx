@@ -4,21 +4,17 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   getAuth,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
-  updateProfile,
 } from "firebase/auth";
-import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { useAuth } from "@/lib/auth-context";
 
 type Mode = "login" | "register";
 type Role = "attendee" | "organizer";
 
 export default function LoginPage() {
   const router = useRouter();
-  const auth = getAuth();
+  const { loginWithEmail, registerWithEmail, loginWithGoogle } = useAuth();
 
   const [mode, setMode] = useState<Mode>("login");
   const [role, setRole] = useState<Role>("attendee");
@@ -27,74 +23,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const saveUserToFirestore = async (
-    uid: string,
-    email: string | null,
-    displayName: string | null,
-    selectedRole: Role,
-  ) => {
-    const userRef = doc(db, "users", uid);
-    const snap = await getDoc(userRef);
-    if (!snap.exists()) {
-      await setDoc(userRef, {
-        uid,
-        email,
-        displayName,
-        role: selectedRole,
-        createdAt: serverTimestamp(),
-      });
-    }
-  };
-
-  const handleSubmit = async () => {
-    setError("");
-    setLoading(true);
-    try {
-      if (mode === "login") {
-        const cred = await signInWithEmailAndPassword(auth, email, password);
-        await saveUserToFirestore(
-          cred.user.uid,
-          cred.user.email,
-          cred.user.displayName,
-          role,
-        );
-      } else {
-        const cred = await createUserWithEmailAndPassword(
-          auth,
-          email,
-          password,
-        );
-        await updateProfile(cred.user, { displayName: name });
-        await saveUserToFirestore(cred.user.uid, cred.user.email, name, role);
-      }
-      router.push("/explore");
-    } catch (e: any) {
-      setError(friendlyError(e.code));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGoogle = async () => {
-    setError("");
-    setLoading(true);
-    try {
-      const provider = new GoogleAuthProvider();
-      const cred = await signInWithPopup(auth, provider);
-      await saveUserToFirestore(
-        cred.user.uid,
-        cred.user.email,
-        cred.user.displayName,
-        role,
-      );
-      router.push("/explore");
-    } catch (e: any) {
-      setError(friendlyError(e.code));
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const friendlyError = (code: string) => {
     switch (code) {
@@ -112,6 +40,40 @@ export default function LoginPage() {
         return "Google sign-in was cancelled.";
       default:
         return "Something went wrong. Please try again.";
+    }
+  };
+
+  const handleSubmit = async () => {
+    setError("");
+    setLoading(true);
+    try {
+      if (mode === "login") {
+        // Login — role is already stored in Firestore from registration,
+        // we do NOT overwrite it here.
+        await loginWithEmail(email, password);
+      } else {
+        // Register — pass role + displayName so auth-context writes them correctly
+        await registerWithEmail(email, password, role, name);
+      }
+      router.push("/explore");
+    } catch (e: any) {
+      setError(friendlyError(e.code));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogle = async () => {
+    setError("");
+    setLoading(true);
+    try {
+      // Pass role for new Google sign-ups; existing users keep their stored role
+      await loginWithGoogle(role);
+      router.push("/explore");
+    } catch (e: any) {
+      setError(friendlyError(e.code));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -152,7 +114,7 @@ export default function LoginPage() {
           ))}
         </div>
 
-        {/* Role selector */}
+        {/* Role selector — shown on register, and for Google sign-in of new users */}
         <div className="mb-5">
           <p className="text-xs text-gray-500 mb-2 font-medium uppercase tracking-wider">
             I am a
@@ -172,6 +134,11 @@ export default function LoginPage() {
               </button>
             ))}
           </div>
+          {mode === "login" && (
+            <p className="text-xs text-gray-600 mt-2">
+              Role selection only applies when creating a new account.
+            </p>
+          )}
         </div>
 
         {/* Fields */}
@@ -257,8 +224,8 @@ export default function LoginPage() {
       </div>
 
       <p className="text-xs text-gray-700 mt-6">
-        By continuing you agree to our Terms & Privacy Policy
+        By continuing you agree to our Terms &amp; Privacy Policy
       </p>
     </div>
   );
-}
+} 

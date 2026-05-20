@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import EventCard, { EventCardProps } from "@/components/events/EventCard";
 import { useRouter } from "next/navigation";
+import { getMemoryCache, setMemoryCache } from "@/lib/cache/events-cache";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const CATEGORIES = [
   { label: "All", icon: Flame },
@@ -28,21 +30,32 @@ const CATEGORIES = [
 ];
 
 export default function ExplorePage() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [notifications] = useState(3);
   const [allEvents, setAllEvents] = useState<EventCardProps[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingEvent, setLoadingEvent] = useState(true);
   const [showSearch, setShowSearch] = useState(false);
 
-  // ── Fetch from Firestore ──────────────────────
+  // ── Fetch from Firestore ──
   useEffect(() => {
     const fetchEvents = async () => {
+      setLoadingEvent(true);
+
+      // 1. MEMORY CACHE (instant load)
+      const memory = getMemoryCache();
+      if (memory) {
+        setAllEvents(memory);
+        setLoadingEvent(false);
+        return;
+      }
+
       try {
         const q = query(collection(db, "events"), orderBy("createdAt", "desc"));
         const snapshot = await getDocs(q);
+
         const fetched: EventCardProps[] = snapshot.docs.map((doc) => {
           const d = doc.data();
           return {
@@ -58,13 +71,18 @@ export default function ExplorePage() {
             category: d.category ?? "Event",
           };
         });
+
         setAllEvents(fetched);
+
+        // 2. MEMORY CACHE update
+        setMemoryCache(fetched);
       } catch (err) {
         console.error("Failed to fetch events:", err);
       } finally {
-        setLoading(false);
+        setLoadingEvent(false);
       }
     };
+
     fetchEvents();
   }, []);
 
@@ -91,20 +109,28 @@ export default function ExplorePage() {
   const handleLoginClick = () => {
     router.push("/login");
   };
+  console.log(user?.displayName);
 
   return (
     <div className="min-h-screen bg-[#0c0c12] pb-24 overflow-x-hidden font-display">
       {/* ── Header ── */}
       <div className="px-5 pt-12 pb-4">
         <div className="flex items-center justify-between gap-2">
-          <div>
-            <p className="text-[11px] text-gray-600 uppercase tracking-[0.2em] font-bold">
-              Good evening,
-            </p>
-            <h1 className="text-[22px] font-black text-white leading-tight mt-0.5">
-              {user?.displayName ?? "Explorer"}
-            </h1>
-          </div>
+          {loading ? (
+            <div className="space-y-2">
+              <Skeleton className="h-3 w-24" />
+              <Skeleton className="h-6 w-40" />
+            </div>
+          ) : (
+            <div>
+              <p className="text-[11px] text-gray-600 uppercase tracking-[0.2em] font-bold">
+                Good evening,
+              </p>
+              <h1 className="text-[22px] font-black text-white leading-tight mt-0.5">
+                {user?.displayName ?? "Explorer"}
+              </h1>
+            </div>
+          )}
 
           <div className="flex items-center gap-2 flex-shrink-0">
             {/* Search toggle button */}
@@ -189,7 +215,7 @@ export default function ExplorePage() {
       </div>
 
       {/* ── Loading ── */}
-      {loading ? (
+      {loadingEvent ? (
         <div className="flex flex-col items-center justify-center py-20 gap-4">
           <Loader2 size={28} className="text-primary animate-spin" />
           <p className="text-[11px] text-gray-600 uppercase tracking-widest font-black">
