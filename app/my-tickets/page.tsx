@@ -1,0 +1,125 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { useAuth } from "@/lib/auth-context";
+import { Bell, Loader2, Ticket } from "lucide-react";
+import TicketCard, { TicketProps } from "@/components/tickets/TicketCard";
+
+type Tab = "upcoming" | "past";
+
+export default function MyTicketsPage() {
+  const { user } = useAuth();
+  const [tickets, setTickets] = useState<TicketProps[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<Tab>("upcoming");
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchTickets = async () => {
+      try {
+        const q = query(
+          collection(db, "tickets"),
+          where("userId", "==", user.uid),
+          orderBy("purchasedAt", "desc"),
+        );
+        const snapshot = await getDocs(q);
+        const fetched: TicketProps[] = snapshot.docs.map((doc) => {
+          const d = doc.data();
+          return {
+            id: doc.id,
+            eventId: d.eventId ?? "",
+            eventTitle: d.eventTitle ?? "Untitled Event",
+            eventImage: d.eventImage ?? "",
+            eventDate: d.eventDate ?? "TBA",
+            eventTime: d.eventTime ?? "TBA",
+            eventLocation: d.eventLocation ?? "TBA",
+            category: d.category ?? "Event",
+            price: d.price ?? 0,
+            ticketNumber: d.ticketNumber ?? doc.id.slice(-6).toUpperCase(),
+            status: d.status ?? "upcoming",
+            purchasedAt:
+              d.purchasedAt?.toDate?.()?.toLocaleDateString("en-US") ?? "",
+          };
+        });
+        setTickets(fetched);
+      } catch (err) {
+        console.error("Failed to fetch tickets:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTickets();
+  }, [user]);
+
+  const upcoming = tickets.filter((t) => t.status === "upcoming");
+  const past = tickets.filter(
+    (t) => t.status === "past" || t.status === "cancelled",
+  );
+  const displayed = activeTab === "upcoming" ? upcoming : past;
+
+  return (
+    <div className="min-h-screen bg-[#0c0c12] text-white pb-24">
+      {/* ── Header ── */}
+      <div className="px-5 pt-12 pb-5">
+          <div>
+            <p className="text-[10px] text-gray-600 uppercase tracking-[0.2em] font-bold">
+              Your
+            </p>
+            <h1 className="font-display font-black text-[26px] uppercase tracking-wide leading-tight">
+              Tickets
+            </h1>
+          </div>
+      </div>
+
+      {/* ── Tab toggle ── */}
+      <div className="px-5 mb-5">
+        <div className="flex bg-[#111118] border border-white/8 p-1 gap-1">
+          {(["upcoming", "past"] as Tab[]).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`flex-1 py-2.5 text-[11px] font-black uppercase tracking-widest transition-all duration-200 active:scale-95 ${
+                activeTab === tab
+                  ? "bg-white text-black"
+                  : "text-gray-600 hover:text-gray-400"
+              }`}
+            >
+              {tab === "upcoming"
+                ? `Upcoming (${upcoming.length})`
+                : `Past (${past.length})`}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Content ── */}
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-20 gap-4">
+          <Loader2 size={28} className="text-primary animate-spin" />
+          <p className="text-[11px] text-gray-600 uppercase tracking-widest font-black">
+            Loading tickets...
+          </p>
+        </div>
+      ) : displayed.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 gap-4 px-5">
+          <div className="w-16 h-16 border border-dashed border-white/10 flex items-center justify-center">
+            <Ticket size={24} className="text-gray-700" strokeWidth={1.5} />
+          </div>
+          <p className="text-gray-600 text-[12px] font-mono uppercase tracking-widest text-center">
+            {activeTab === "upcoming"
+              ? "No upcoming tickets"
+              : "No past tickets"}
+          </p>
+        </div>
+      ) : (
+        <div className="px-5 flex flex-col gap-3">
+          {displayed.map((ticket) => (
+            <TicketCard key={ticket.id} ticket={ticket} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

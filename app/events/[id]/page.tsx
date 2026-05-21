@@ -18,6 +18,8 @@ import {
 import LikeIcon from "@/components/icons/recHeart";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { useAuth } from "@/lib/auth-context";
 
 interface Artist {
   id?: string;
@@ -50,6 +52,7 @@ interface EventData {
 }
 
 export default function EventDetailPage() {
+  const { user } = useAuth();
   const router = useRouter();
   const params = useParams();
   const id = params?.id as string;
@@ -157,26 +160,55 @@ export default function EventDetailPage() {
     );
   };
 
-  const handleBuyClick = () => {
+  const handleBuyClick = async () => {
+    if (!user || !event) return;
+
     setLoadingBuy(true);
-    // simulate API / order process
-    setTimeout(() => {
-      setLoadingBuy(false);
+
+    try {
+      await addDoc(collection(db, "tickets"), {
+        userId: user.uid,
+
+        eventId: event.id,
+
+        eventTitle: event.title,
+        eventImage: event.image,
+        eventDate: event.date,
+        eventTime: event.time ?? "TBA",
+        eventLocation: event.location,
+
+        category: event.category,
+
+        price: event.price ?? "Free",
+
+        ticketNumber: Math.random().toString(36).substring(2, 8).toUpperCase(),
+
+        status: "upcoming",
+
+        purchasedAt: serverTimestamp(),
+      });
+
       toast.success("Ticket purchased successfully!", {
-      description: "Your ticket has been added to your account.",
-      style: {
-        background : "#00DF81",
-        color: "white",
-      }
-    });
+        description: "Your ticket has been added to your account.",
+        style: {
+          background: "#00DF81",
+          color: "white",
+        },
+      });
+
       confetti({
-      particleCount: 120,
-      spread: 80,
-      origin: { y: 0.6 },
-      colors: ["#7c3aed", "#d946ef", "#ffffff", "#a78bfa"],
-    });
-    }, 2000);
-    
+        particleCount: 120,
+        spread: 80,
+        origin: { y: 0.6 },
+        colors: ["#7c3aed", "#d946ef", "#ffffff", "#a78bfa"],
+      });
+    } catch (error) {
+      console.log(error);
+
+      toast.error("Purchase failed");
+    } finally {
+      setLoadingBuy(false);
+    }
   };
 
   return (

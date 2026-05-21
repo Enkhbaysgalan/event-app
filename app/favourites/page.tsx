@@ -140,22 +140,22 @@ export default function FavouritesPage() {
     <div className="min-h-screen bg-[#0c0c12] pb-24 text-white">
       {/* ── Header ── */}
       <div className="px-5 pt-12 pb-5">
-        <p className="text-[11px] text-gray-600 uppercase tracking-[0.2em] font-bold">
+        <p className="text-[10px] text-gray-600 uppercase tracking-[0.2em] font-bold">
           Your collection
         </p>
-        <h1 className="text-[26px] font-display font-black text-white leading-tight mt-0.5 uppercase tracking-wide">
+        <h1 className="text-[26px] font-display font-black text-white leading-tight uppercase tracking-wide">
           Favourites
         </h1>
       </div>
 
-      {/* ── Toggle switch ── */}
-      <div className="px-5 mb-6">
-        <div className="flex bg-[#1a1a26] border border-white/8 p-1 gap-1">
+      {/* ── Tab toggle ── */}
+      <div className="px-5 mb-5">
+        <div className="flex bg-[#111118] border border-white/8 p-1 gap-1">
           {(["events", "organizers"] as Tab[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`flex-1 py-2.5 text-[12px] font-black uppercase tracking-widest transition-all duration-200 active:scale-95 ${
+              className={`flex-1 py-2.5 text-[11px] font-black uppercase tracking-widest transition-all duration-200 active:scale-95 ${
                 activeTab === tab
                   ? "bg-white text-black"
                   : "text-gray-600 hover:text-gray-400"

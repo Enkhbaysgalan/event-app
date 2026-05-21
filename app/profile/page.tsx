@@ -17,6 +17,7 @@ import {
 } from "firebase/auth";
 import { doc, updateDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ArrowLeft } from "lucide-react";
 
 // ── Types ───────────────────────────────────────
 type Screen = "profile" | "settings" | "blocked";
@@ -144,7 +145,7 @@ export default function ProfilePage() {
             onClick={() => setScreen("profile")}
             className="w-10 h-10 bg-[#111118] border border-white/8 flex items-center justify-center active:scale-90 transition-transform flex-shrink-0"
           >
-            <X size={16} strokeWidth={2.5} />
+            <ArrowLeft size={18} strokeWidth={2.5} />
           </button>
           <div className="flex-1">
             <p className="text-[10px] text-gray-600 uppercase tracking-widest font-black">Account</p>
@@ -230,7 +231,7 @@ export default function ProfilePage() {
             onClick={() => setScreen("settings")}
             className="w-10 h-10 bg-[#111118] border border-white/8 flex items-center justify-center active:scale-90 transition-transform flex-shrink-0"
           >
-            <X size={16} strokeWidth={2.5} />
+            <ArrowLeft size={18} strokeWidth={2.5} />
           </button>
           <div>
             <p className="text-[10px] text-gray-600 uppercase tracking-widest font-black">Settings</p>
