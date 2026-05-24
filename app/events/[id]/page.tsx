@@ -15,7 +15,7 @@ import {
   Share2,
   Loader2,
 } from "lucide-react";
-import LikeIcon from "@/components/icons/recHeart";
+import LikeButton from "@/components/ui/LikeButton";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
@@ -59,7 +59,6 @@ export default function EventDetailPage() {
 
   const [event, setEvent] = useState<EventData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [liked, setLiked] = useState(false);
   const [notFound, setNotFound] = useState(false);
   const [loadingBuy, setLoadingBuy] = useState(false);
 
@@ -246,17 +245,7 @@ export default function EventDetailPage() {
             <button className="w-10 h-10 bg-[#0c0c12]/70 backdrop-blur-sm border border-white/10 flex items-center justify-center active:scale-90 transition-transform">
               <Share2 size={16} strokeWidth={2.5} />
             </button>
-            <button
-              onClick={() => setLiked(!liked)}
-              className="w-10 h-10 bg-[#0c0c12]/70 backdrop-blur-sm border border-white/10 flex items-center justify-center active:scale-90 transition-transform"
-            >
-              <LikeIcon
-                size={16}
-                strokeWidth={2}
-                filled={liked}
-                className={liked ? "text-primary" : "text-white"}
-              />
-            </button>
+            <LikeButton variant="subtle" />
           </div>
         </div>
 

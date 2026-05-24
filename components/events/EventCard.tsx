@@ -1,11 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
-import { Users } from "lucide-react";
-import LikeIcon from "../icons/recHeart";
-import Link from "next/link";
-import { User } from "lucide-react";
+import { Users, User } from "lucide-react";
+import { useRouter } from "next/navigation";
+import LikeButton from "@/components/ui/LikeButton";
 
 export interface EventCardProps {
   id: string;
@@ -32,11 +30,10 @@ export default function EventCard({
   price,
   category,
 }: EventCardProps) {
-  const [liked, setLiked] = useState(false);
+  const router = useRouter();
 
   return (
-    <Link href={`/events/${id}`}>
-      <div className="relative w-[260px] flex-shrink-0 bg-[#111118] border border-gray-600 overflow-hidden group cursor-pointer active:scale-[0.98] transition-transform duration-150">
+    <div onClick={() => router.push(`/events/${id}`)} className="relative w-[260px] flex-shrink-0 bg-[#111118] border border-gray-600 overflow-hidden group cursor-pointer active:scale-[0.98] transition-transform duration-150">
         {/* Event image */}
         <div className="relative w-full h-[160px] overflow-hidden bg-[#1e1e2e] flex items-center justify-center">
           {/* Placeholder shown behind image */}
@@ -75,19 +72,7 @@ export default function EventCard({
           </div>
 
           {/* TOP RIGHT — Like button (square) */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setLiked(!liked);
-            }}
-            className={`absolute top-3 right-3 w-10 h-10 flex items-center justify-center border transition-all duration-200 active:scale-90 rounded-lg ${
-              liked
-                ? "bg-red-500 border-red-500 text-white"
-                : "bg-[#111118]/80 border-white/10 hover:border-white/30 text-white"
-            }`}
-          >
-            <LikeIcon filled={liked} />
-          </button>
+          <LikeButton className="absolute top-3 right-3" />
 
           {/* Category tag */}
         </div>
@@ -147,6 +132,5 @@ export default function EventCard({
           </div>
         </div>
       </div>
-    </Link>
   );
 }

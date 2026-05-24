@@ -152,7 +152,7 @@ export default function ExplorePage() {
               ) : (
                 <>
                   <Bell size={18} className="text-gray-300" strokeWidth={2} />
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary-light text-[9px] font-black text-black flex items-center justify-center rounded-full">
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary-light text-[9px] font-black text-black flex items-center justify-center">
                     3
                   </span>
                 </>

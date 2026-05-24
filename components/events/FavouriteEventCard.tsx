@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import { Users, MapPin } from "lucide-react";
-import LikeIcon from "@/components/icons/recHeart";
+import LikeButton from "@/components/ui/LikeButton";
 
 export interface FavouriteEventCardProps {
   id: string;
@@ -34,13 +33,6 @@ export default function FavouriteEventCard({
   location,
   onUnlike,
 }: FavouriteEventCardProps) {
-  const [liked, setLiked] = useState(true);
-
-  const handleLike = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setLiked(!liked);
-    if (liked && onUnlike) onUnlike(id);
-  };
 
   return (
     <div className="relative w-full flex bg-[#111118] border border-white/8 overflow-hidden active:scale-[0.99] transition-transform duration-150 cursor-pointer">
@@ -79,18 +71,11 @@ export default function FavouriteEventCard({
             </span>
           )}
           {/* Like button — top right square */}
-          <button
-            onClick={handleLike}
-            className={`w-10 h-10 flex items-center justify-center border border-white/10 bg-[#1a1a26] flex-shrink-0 active:scale-90 transition-transform ml-auto rounded-lg ${
-            liked
-              ? "bg-red-500 border-red-500 text-white"
-              : "bg-[#111118]/80 border-white/10 hover:border-white/30 text-white"
-          }`}
-          >
-            <LikeIcon
-              filled={liked}
-            />
-          </button>
+          <LikeButton
+            defaultLiked
+            onToggle={(isLiked) => { if (!isLiked) onUnlike?.(id); }}
+            className="ml-auto flex-shrink-0"
+          />
         </div>
 
         {/* Title */}
