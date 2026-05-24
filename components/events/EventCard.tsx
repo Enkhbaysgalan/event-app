@@ -48,17 +48,19 @@ export default function EventCard({
               No Image
             </span>
           </div>
-          <Image
-            src={image}
-            alt={title}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-500"
-            sizes="260px"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.style.display = "none";
-            }}
-          />
+          {image && (
+            <Image
+              src={image}
+              alt={title}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-500"
+              sizes="260px"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.style.display = "none";
+              }}
+            />
+          )}
           {/* dark gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#111118]/80 via-transparent to-transparent" />
 

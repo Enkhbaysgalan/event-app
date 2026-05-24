@@ -114,32 +114,29 @@ export default function LoginPage() {
           ))}
         </div>
 
-        {/* Role selector — shown on register, and for Google sign-in of new users */}
-        <div className="mb-5">
-          <p className="text-xs text-gray-500 mb-2 font-medium uppercase tracking-wider">
-            I am a
-          </p>
-          <div className="flex gap-3">
-            {(["attendee", "organizer"] as Role[]).map((r) => (
-              <button
-                key={r}
-                onClick={() => setRole(r)}
-                className={`flex-1 py-3 rounded-2xl text-sm font-semibold border transition-all duration-200 ${
-                  role === r
-                    ? "bg-violet-600/20 border-violet-500 text-violet-300"
-                    : "border-white/10 text-gray-500 hover:border-white/20 hover:text-gray-300"
-                }`}
-              >
-                {r === "attendee" ? "🎟 Attendee" : "🎙 Organizer"}
-              </button>
-            ))}
-          </div>
-          {mode === "login" && (
-            <p className="text-xs text-gray-600 mt-2">
-              Role selection only applies when creating a new account.
+        {/* Role selector — register only */}
+        {mode === "register" && (
+          <div className="mb-5">
+            <p className="text-xs text-gray-500 mb-2 font-medium uppercase tracking-wider">
+              I am a
             </p>
-          )}
-        </div>
+            <div className="flex gap-3">
+              {(["attendee", "organizer"] as Role[]).map((r) => (
+                <button
+                  key={r}
+                  onClick={() => setRole(r)}
+                  className={`flex-1 py-3 rounded-2xl text-sm font-semibold border transition-all duration-200 ${
+                    role === r
+                      ? "bg-violet-600/20 border-violet-500 text-violet-300"
+                      : "border-white/10 text-gray-500 hover:border-white/20 hover:text-gray-300"
+                  }`}
+                >
+                  {r === "attendee" ? "🎟 Attendee" : "🎙 Organizer"}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Fields */}
         <div className="flex flex-col gap-3">
