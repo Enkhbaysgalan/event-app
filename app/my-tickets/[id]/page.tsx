@@ -24,6 +24,9 @@ import {
   Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
+import dynamic from "next/dynamic";
+
+const EventMap = dynamic(() => import("@/components/ui/EventMap"), { ssr: false });
 
 interface TicketData {
   id: string;
@@ -49,9 +52,29 @@ export default function TicketDetailPage() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+
   const [giftOpen, setGiftOpen] = useState(false);
   const [recipientEmail, setRecipientEmail] = useState("");
   const [gifting, setGifting] = useState(false);
+
+  useEffect(() => {
+    if (!ticket?.eventLocation || ticket.eventLocation === "TBA") return;
+    const geocode = async () => {
+      try {
+        const res = await fetch(
+          `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(ticket.eventLocation)}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`,
+        );
+        const data = await res.json();
+        if (data.results?.[0]?.geometry?.location) {
+          setCoords(data.results[0].geometry.location);
+        }
+      } catch {
+        // geocoding failed — map stays hidden
+      }
+    };
+    geocode();
+  }, [ticket?.eventLocation]);
 
   useEffect(() => {
     if (!id) return;
@@ -216,18 +239,20 @@ export default function TicketDetailPage() {
             <span className="text-[9px] text-gray-600 uppercase tracking-widest font-black">
               Venue Location
             </span>
-            <span className="ml-auto text-[9px] text-primary font-black uppercase tracking-widest">
-              Upcoming
-            </span>
           </div>
-          {/* Google Maps placeholder */}
-          <div className="w-full h-[110px] bg-[#1a1a26] border border-dashed border-white/10 flex items-center justify-center">
-            <div className="flex flex-col items-center gap-1.5">
-              <MapPin size={22} className="text-gray-700" strokeWidth={1.5} />
-              <span className="text-[9px] text-gray-700 uppercase tracking-widest font-black">
-                Map coming soon
-              </span>
-            </div>
+          <div className="w-full h-[160px] overflow-hidden">
+            {coords ? (
+              <EventMap lat={coords.lat} lng={coords.lng} label={ticket.eventLocation} />
+            ) : (
+              <div className="w-full h-full bg-[#1a1a26] border border-dashed border-white/10 flex items-center justify-center">
+                <div className="flex flex-col items-center gap-1.5">
+                  <MapPin size={22} className="text-gray-700" strokeWidth={1.5} />
+                  <span className="text-[9px] text-gray-700 uppercase tracking-widest font-black">
+                    Map loading...
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
           <p className="text-[11px] text-gray-500 mt-2 truncate">{ticket.eventLocation}</p>
         </div>

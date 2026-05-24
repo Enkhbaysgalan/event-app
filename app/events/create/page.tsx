@@ -22,6 +22,10 @@ import {
   Tag,
 } from "lucide-react";
 import confetti from "canvas-confetti";
+import dynamic from "next/dynamic";
+import type { LocationValue } from "@/components/ui/LocationPicker";
+
+const LocationPicker = dynamic(() => import("@/components/ui/LocationPicker"), { ssr: false });
 
 // ── Types ───────────────────────────────────────
 interface Artist {
@@ -38,6 +42,8 @@ interface FormData {
   duration: string;
   location: string;
   locationDetail: string;
+  lat: number | null;
+  lng: number | null;
   price: string;
   capacity: string;
   artists: Artist[];
@@ -63,6 +69,8 @@ const EMPTY_FORM: FormData = {
   duration: "",
   location: "",
   locationDetail: "",
+  lat: null,
+  lng: null,
   price: "",
   capacity: "",
   artists: [],
@@ -157,6 +165,17 @@ export default function CreateEventPage() {
   const set = (key: keyof FormData) => (value: string) =>
     setForm((prev) => ({ ...prev, [key]: value }));
 
+  const handleLocationChange = (loc: LocationValue) => {
+    setForm((prev) => ({
+      ...prev,
+      location: loc.name,
+      locationDetail: loc.detail,
+      lat: loc.lat,
+      lng: loc.lng,
+    }));
+    setErrors((prev) => ({ ...prev, location: undefined }));
+  };
+
   // ── Image picker ─────────────────────────────
   const handleImagePick = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -248,6 +267,8 @@ export default function CreateEventPage() {
         duration: form.duration.trim(),
         location: form.location.trim(),
         locationDetail: form.locationDetail.trim(),
+        lat: form.lat,
+        lng: form.lng,
         price: form.price === "" || form.price === "0" ? 0 : Number(form.price),
         capacity: Number(form.capacity),
         attendees: 0,
@@ -436,19 +457,11 @@ export default function CreateEventPage() {
         <div className="h-px bg-white/5" />
 
         {/* ── Location ── */}
-        <Field label="Venue Name" icon={MapPin} error={errors.location}>
-          <TextInput
-            value={form.location}
-            onChange={set("location")}
-            placeholder="e.g. Sky Lounge, Ulaanbaatar"
-          />
-        </Field>
-
-        <Field label="Address / Detail">
-          <TextInput
-            value={form.locationDetail}
-            onChange={set("locationDetail")}
-            placeholder="e.g. 4th floor, Blue Sky Tower"
+        <Field label="Venue Location" icon={MapPin} error={errors.location}>
+          <LocationPicker
+            value={{ name: form.location, detail: form.locationDetail, lat: form.lat, lng: form.lng }}
+            onChange={handleLocationChange}
+            error={errors.location}
           />
         </Field>
 
@@ -457,7 +470,7 @@ export default function CreateEventPage() {
 
         {/* ── Tickets ── */}
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Price ($)" error={errors.price}>
+          <Field label="Price (k)" error={errors.price}>
             <TextInput
               value={form.price}
               onChange={set("price")}

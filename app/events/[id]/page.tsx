@@ -16,6 +16,11 @@ import {
   Loader2,
 } from "lucide-react";
 import LikeButton from "@/components/ui/LikeButton";
+import dynamic from "next/dynamic";
+
+const EventMap = dynamic(() => import("@/components/ui/EventMap"), {
+  ssr: false,
+});
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
@@ -49,6 +54,8 @@ interface EventData {
     followers: string;
   };
   artists: Artist[];
+  lat: number | null;
+  lng: number | null;
 }
 
 export default function EventDetailPage() {
@@ -91,6 +98,8 @@ export default function EventDetailPage() {
               followers: d.host?.followers ?? "0",
             },
             artists: Array.isArray(d.artists) ? d.artists : [],
+            lat: d.lat ?? null,
+            lng: d.lng ?? null,
           });
         } else {
           setNotFound(true);
@@ -157,6 +166,20 @@ export default function EventDetailPage() {
         },
       },
     );
+  };
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: event?.title, text: `Check out this event: ${event?.title}`, url });
+      } catch {
+        // user cancelled — do nothing
+      }
+    } else {
+      await navigator.clipboard.writeText(url);
+      toast.success("Link copied to clipboard!");
+    }
   };
 
   const handleBuyClick = async () => {
@@ -242,10 +265,10 @@ export default function EventDetailPage() {
             <ArrowLeft size={18} strokeWidth={2.5} />
           </button>
           <div className="flex gap-2">
-            <button className="w-10 h-10 bg-[#0c0c12]/70 backdrop-blur-sm border border-white/10 flex items-center justify-center active:scale-90 transition-transform">
+            <button onClick={handleShare} className="w-10 h-10 bg-[#0c0c12]/70 backdrop-blur-sm border border-white/10 flex items-center justify-center active:scale-90 transition-transform">
               <Share2 size={16} strokeWidth={2.5} />
             </button>
-            <LikeButton variant="subtle" />
+            <LikeButton />
           </div>
         </div>
 
@@ -450,28 +473,32 @@ export default function EventDetailPage() {
 
         <div className="h-px bg-white/5 mb-6" />
 
-        {/* Map placeholder */}
+        {/* Map */}
         <div className="mb-6">
           <p className="text-[10px] text-gray-600 uppercase tracking-widest font-black mb-3">
             Location
           </p>
-          <div className="w-full h-[160px] bg-[#111118] border border-white/8 flex flex-col items-center justify-center gap-2 relative overflow-hidden">
-            <div
-              className="absolute inset-0 opacity-[0.04]"
-              style={{
-                backgroundImage:
-                  "linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)",
-                backgroundSize: "30px 30px",
-              }}
-            />
-            <MapPin size={24} className="text-primary/40" strokeWidth={1.5} />
-            <p className="text-[11px] text-gray-700 uppercase tracking-widest font-black">
-              Map Coming Soon
-            </p>
-            <p className="text-[10px] text-gray-800 font-mono">
-              Google Maps integration
-            </p>
+          <div className="w-full h-[200px] overflow-hidden border border-white/8">
+            {event.lat && event.lng ? (
+              <EventMap
+                lat={event.lat}
+                lng={event.lng}
+                label={event.location}
+              />
+            ) : (
+              <div className="w-full h-full bg-[#111118] flex flex-col items-center justify-center gap-2">
+                <MapPin size={24} className="text-gray-700" strokeWidth={1.5} />
+                <p className="text-[11px] text-gray-700 uppercase tracking-widest font-black">
+                  No location set
+                </p>
+              </div>
+            )}
           </div>
+          {event.locationDetail && (
+            <p className="text-[10px] text-gray-600 font-mono mt-2">
+              {event.locationDetail}
+            </p>
+          )}
         </div>
         <div className="h-px bg-white/5 mb-6" />
         <p
