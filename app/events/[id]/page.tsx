@@ -183,7 +183,8 @@ export default function EventDetailPage() {
   };
 
   const handleBuyClick = async () => {
-    if (!user || !event) return;
+    if (!user) { router.push("/login"); return; }
+    if (!event) return;
 
     setLoadingBuy(true);
 
@@ -320,7 +321,16 @@ export default function EventDetailPage() {
             </div>
           </div>
 
-          <div className="col-span-2 bg-[#111118] border border-white/8 p-2 flex gap-3 items-center">
+          <a
+            href={
+              event.lat && event.lng
+                ? `https://www.google.com/maps/search/?api=1&query=${event.lat},${event.lng}`
+                : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`
+            }
+            target="_blank"
+            rel="noopener noreferrer"
+            className="col-span-2 bg-[#111118] border border-white/8 p-2 flex gap-3 items-center active:opacity-70 transition-opacity"
+          >
             <div className="w-8 h-8 bg-primary/20 flex items-center justify-center flex-shrink-0">
               <MapPin size={15} className="text-primary" strokeWidth={2.5} />
             </div>
@@ -341,7 +351,7 @@ export default function EventDetailPage() {
               size={16}
               className="text-gray-700 flex-shrink-0 mt-1"
             />
-          </div>
+          </a>
         </div>
 
         {/* Capacity bar — only show if capacity set */}
