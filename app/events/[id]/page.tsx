@@ -284,14 +284,14 @@ export default function EventDetailPage() {
       {/* ── Content ── */}
       <div className="px-5 -mt-2">
         {/* Title */}
-        <h1 className="font-display font-black text-[26px] uppercase leading-tight tracking-wide mt-4 mb-5">
+        <h1 className="font-cyrillic-display font-black text-[26px] uppercase leading-tight tracking-wide mt-4 mb-5">
           {event.title}
         </h1>
 
         {/* Info grid */}
         <div className="grid grid-cols-2 gap-2 mb-6">
           <div className="bg-[#111118] border border-white/8 p-2 flex gap-3 items-center">
-            <div className="w-8 h-8 bg-primary/20 flex items-center justify-center flex-shrink-0">
+            <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
               <Calendar size={15} className="text-primary" strokeWidth={2.5} />
             </div>
             <div>
@@ -305,7 +305,7 @@ export default function EventDetailPage() {
           </div>
 
           <div className="bg-[#111118] border border-white/8 p-2 flex gap-3 items-center">
-            <div className="w-8 h-8 bg-primary/20 flex items-center justify-center flex-shrink-0">
+            <div className="w-8 h-8  flex items-center justify-center flex-shrink-0">
               <Clock size={15} className="text-primary" strokeWidth={2.5} />
             </div>
             <div>
@@ -331,7 +331,7 @@ export default function EventDetailPage() {
             rel="noopener noreferrer"
             className="col-span-2 bg-[#111118] border border-white/8 p-2 flex gap-3 items-center active:opacity-70 transition-opacity"
           >
-            <div className="w-8 h-8 bg-primary/20 flex items-center justify-center flex-shrink-0">
+            <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
               <MapPin size={15} className="text-primary" strokeWidth={2.5} />
             </div>
             <div className="flex-1 min-w-0">
@@ -427,7 +427,7 @@ export default function EventDetailPage() {
           <p className="text-[10px] text-gray-600 uppercase tracking-widest font-black mb-3">
             About
           </p>
-          <p className="text-[13px] text-gray-400 leading-relaxed font-sans">
+          <p className="text-[13px] text-gray-400 leading-relaxed font-cyrillic-sans">
             {event.description}
           </p>
         </div>

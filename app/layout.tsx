@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { DM_Mono, Barlow_Condensed, DM_Sans } from "next/font/google";
+import { DM_Mono, Barlow_Condensed, DM_Sans, Oswald, Rubik } from "next/font/google";
 import { AuthProvider } from "@/lib/auth-context";
 import { GoogleMapsProvider } from "@/components/providers/GoogleMapsProvider";
 import BottomNav from "@/components/ui/layout/BottomNav";
@@ -23,6 +23,19 @@ const barlowCondensed = Barlow_Condensed({
   variable: "--font-display",
 });
 
+// Cyrillic-supporting equivalents
+const oswald = Oswald({
+  subsets: ["latin", "cyrillic"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-cyrillic-display",
+});
+
+const rubik = Rubik({
+  subsets: ["latin", "cyrillic"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+  variable: "--font-cyrillic-sans",
+});
+
 export const metadata: Metadata = {
   title: "Eventify",
   description: "Discover and organize events near you",
@@ -43,7 +56,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${dmMono.variable} ${dmSans.variable} ${barlowCondensed.variable}`}
+      className={`${dmMono.variable} ${dmSans.variable} ${barlowCondensed.variable} ${oswald.variable} ${rubik.variable}`}
     >
       <body className="bg-gray-50 antialiased font-sans">
         <AuthProvider>

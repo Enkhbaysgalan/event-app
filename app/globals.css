@@ -24,3 +24,9 @@ body {
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
+.font-cyrillic-display {
+  font-family: var(--font-cyrillic-display), var(--font-display), sans-serif;
+}
+.font-cyrillic-sans {
+  font-family: var(--font-cyrillic-sans), var(--font-sans), sans-serif;
+}
