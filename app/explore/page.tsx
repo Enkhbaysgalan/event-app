@@ -33,7 +33,7 @@ export default function ExplorePage() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [search, setSearch] = useState("");
-  const [activeCategory, setActiveCategory] = useState("All");
+  const [activeCategories, setActiveCategories] = useState<Set<string>>(new Set());
   const [notifications] = useState(3);
   const [allEvents, setAllEvents] = useState<EventCardProps[]>([]);
   const [loadingEvent, setLoadingEvent] = useState(true);
@@ -69,6 +69,7 @@ export default function ExplorePage() {
             attendees: d.attendees ?? 0,
             price: d.price === 0 ? "Free" : d.price,
             category: d.category ?? "Event",
+            location: d.location ?? "",
           };
         });
 
@@ -94,7 +95,7 @@ export default function ExplorePage() {
         c.title.toLowerCase().includes(search.toLowerCase()) ||
         c.hostName.toLowerCase().includes(search.toLowerCase());
       const matchCat =
-        activeCategory === "All" || c.category === activeCategory;
+        activeCategories.size === 0 || activeCategories.has(c.category ?? "");
       return matchSearch && matchCat;
     });
 
@@ -197,20 +198,36 @@ export default function ExplorePage() {
 
       {/* ── Categories ── */}
       <div className="flex gap-2 px-5 mb-7 overflow-x-auto scrollbar-none">
-        {CATEGORIES.map(({ label, icon: Icon }) => (
-          <button
-            key={label}
-            onClick={() => setActiveCategory(label)}
-            className={`flex items-center gap-1.5 px-3 h-8 flex-shrink-0 text-[11px] font-bold uppercase tracking-wider border transition-all duration-150 active:scale-95 ${
-              activeCategory === label
-                ? "bg-primary border-primary text-white"
-                : "bg-transparent border-white/10 text-gray-500 hover:border-white/25 hover:text-gray-300"
-            }`}
-          >
-            <Icon size={12} strokeWidth={2.5} />
-            {label}
-          </button>
-        ))}
+        {CATEGORIES.map(({ label, icon: Icon }) => {
+          const isAll = label === "All";
+          const active = isAll
+            ? activeCategories.size === 0
+            : activeCategories.has(label);
+          return (
+            <button
+              key={label}
+              onClick={() => {
+                if (isAll) {
+                  setActiveCategories(new Set());
+                } else {
+                  setActiveCategories((prev) => {
+                    const next = new Set(prev);
+                    next.has(label) ? next.delete(label) : next.add(label);
+                    return next;
+                  });
+                }
+              }}
+              className={`flex items-center gap-1.5 px-3 h-8 flex-shrink-0 text-[11px] font-bold uppercase tracking-wider border transition-all duration-150 active:scale-95 ${
+                active
+                  ? "bg-primary border-primary text-white"
+                  : "bg-transparent border-white/10 text-gray-500 hover:border-white/25 hover:text-gray-300"
+              }`}
+            >
+              <Icon size={12} strokeWidth={2.5} />
+              {label}
+            </button>
+          );
+        })}
       </div>
 
       {/* ── Loading ── */}

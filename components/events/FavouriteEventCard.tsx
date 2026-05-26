@@ -39,16 +39,18 @@ export default function FavouriteEventCard({
 
       {/* LEFT — Event image */}
       <div className="relative w-[130px] flex-shrink-0 bg-[#1e1e2e]">
-        <Image
-          src={image}
-          alt={title}
-          fill
-          className="object-cover"
-          sizes="130px"
-          onError={(e) => {
-            (e.target as HTMLImageElement).style.display = "none";
-          }}
-        />
+        {image && (
+          <Image
+            src={image}
+            alt={title}
+            fill
+            className="object-cover"
+            sizes="130px"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = "none";
+            }}
+          />
+        )}
         {/* Date badge — bottom of image */}
         <div className="absolute bottom-0 left-0 right-0 flex flex-col items-center justify-center py-2 bg-[#111118]/80 backdrop-blur-sm">
           <span className="text-[9px] font-black text-primary uppercase tracking-widest leading-none">
@@ -86,7 +88,11 @@ export default function FavouriteEventCard({
         {/* Host row */}
         <div className="flex items-center gap-2 mb-2">
           <div className="relative w-7 h-7 rounded-full overflow-hidden border-2 border-primary flex-shrink-0">
-            <Image src={hostAvatar} alt={hostName} fill className="object-cover" sizes="20px" />
+            {hostAvatar ? (
+              <Image src={hostAvatar} alt={hostName} fill className="object-cover" sizes="28px" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-xs">👤</div>
+            )}
           </div>
           <span className="text-[11px] text-gray-400 truncate">{hostName}</span>
         </div>

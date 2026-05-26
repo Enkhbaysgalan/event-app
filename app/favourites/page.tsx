@@ -1,89 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/lib/auth-context";
+import { useLikes } from "@/lib/likes-context";
+import { LikedEventData } from "@/lib/likes-context";
 import FavouriteEventCard from "@/components/events/FavouriteEventCard";
-import { FavouriteEventCardProps } from "@/components/events/FavouriteEventCard";
 import Image from "next/image";
-
-// ── Mock liked events ───────────────────────────────────────
-const MOCK_LIKED_EVENTS: FavouriteEventCardProps[] = [
-  {
-    id: "1",
-    title: "Neon Rave: Underground Electronic Night",
-    image:
-      "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=600&q=80",
-    date: "14",
-    month: "JUN",
-    hostName: "DJ Kollektiv",
-    hostAvatar:
-      "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&q=80",
-    attendees: 1240,
-    price: 25,
-    category: "Music",
-    location: "Sky Lounge, UB",
-  },
-  {
-    id: "2",
-    title: "Tech Summit 2026: AI & The Future",
-    image:
-      "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&q=80",
-    date: "18",
-    month: "JUN",
-    hostName: "TechHub UB",
-    hostAvatar:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80",
-    attendees: 580,
-    price: 49,
-    category: "Tech",
-    location: "Innovation Center",
-  },
-  {
-    id: "3",
-    title: "Open Air Art Market & Live Painting",
-    image:
-      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80",
-    date: "22",
-    month: "JUN",
-    hostName: "Artspace MN",
-    hostAvatar:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80",
-    attendees: 320,
-    price: "Free",
-    category: "Art",
-    location: "Sukhbaatar Square",
-  },
-  {
-    id: "4",
-    title: "Marathon City Run — Summer Edition",
-    image:
-      "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=600&q=80",
-    date: "29",
-    month: "JUN",
-    hostName: "RunCrew UB",
-    hostAvatar:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80",
-    attendees: 890,
-    price: 15,
-    category: "Sport",
-    location: "Zaisan Hill",
-  },
-  {
-    id: "5",
-    title: "Jazz & Wine Evening at Rooftop",
-    image:
-      "https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?w=600&q=80",
-    date: "16",
-    month: "JUN",
-    hostName: "Rooftop Events",
-    hostAvatar:
-      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80",
-    attendees: 150,
-    price: 35,
-    category: "Music",
-    location: "Rooftop Bar, CBD",
-  },
-];
+import { Loader2 } from "lucide-react";
 
 // ── Mock liked organizers ───────────────────────────────────
 const MOCK_LIKED_ORGANIZERS = [
@@ -129,11 +52,22 @@ type Tab = "events" | "organizers";
 
 export default function FavouritesPage() {
   const { user } = useAuth();
+  const { likedEvents, toggleLike, loading } = useLikes();
   const [activeTab, setActiveTab] = useState<Tab>("events");
-  const [likedEvents, setLikedEvents] = useState(MOCK_LIKED_EVENTS);
+  const [displayEvents, setDisplayEvents] = useState<LikedEventData[]>([]);
+  const initialized = useRef(false);
 
-  const handleUnlike = (id: string) => {
-    setLikedEvents((prev) => prev.filter((e) => e.id !== id));
+  // Snapshot once when data first arrives — ignore subsequent context updates
+  useEffect(() => {
+    if (!loading && !initialized.current) {
+      setDisplayEvents(likedEvents);
+      initialized.current = true;
+    }
+  }, [loading, likedEvents]);
+
+  const handleUnlike = (eventId: string) => {
+    const ev = displayEvents.find((e) => e.eventId === eventId);
+    if (ev) toggleLike(ev); // updates Firestore in background; display stays unchanged
   };
 
   return (
@@ -162,7 +96,7 @@ export default function FavouritesPage() {
               }`}
             >
               {tab === "events"
-                ? `Events ${likedEvents.length > 0 ? `(${likedEvents.length})` : ""}`
+                ? `Events ${displayEvents.length > 0 ? `(${displayEvents.length})` : ""}`
                 : `Organizers (${MOCK_LIKED_ORGANIZERS.length})`}
             </button>
           ))}
@@ -172,7 +106,11 @@ export default function FavouritesPage() {
       {/* ── Events tab ── */}
       {activeTab === "events" && (
         <div className="px-5 flex flex-col gap-3">
-          {likedEvents.length === 0 ? (
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-20 gap-4">
+              <Loader2 size={28} className="text-primary animate-spin" />
+            </div>
+          ) : displayEvents.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 gap-4">
               <div className="w-16 h-16 border border-white/10 flex items-center justify-center">
                 <span className="text-3xl">🎪</span>
@@ -182,10 +120,20 @@ export default function FavouritesPage() {
               </p>
             </div>
           ) : (
-            likedEvents.map((event) => (
+            displayEvents.map((event) => (
               <FavouriteEventCard
-                key={event.id}
-                {...event}
+                key={event.eventId}
+                id={event.eventId}
+                title={event.title}
+                image={event.image}
+                date={event.date}
+                month={event.month}
+                hostName={event.hostName}
+                hostAvatar={event.hostAvatar}
+                attendees={event.attendees}
+                price={event.price}
+                category={event.category}
+                location={event.location}
                 onUnlike={handleUnlike}
               />
             ))

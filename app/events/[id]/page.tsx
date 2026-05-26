@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter, useParams } from "next/navigation";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, addDoc, updateDoc, collection, serverTimestamp, query, where, getDocs, increment } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import {
   ArrowLeft,
@@ -16,6 +16,7 @@ import {
   Loader2,
 } from "lucide-react";
 import LikeButton from "@/components/ui/LikeButton";
+import { useLikes } from "@/lib/likes-context";
 import dynamic from "next/dynamic";
 
 const EventMap = dynamic(() => import("@/components/ui/EventMap"), {
@@ -23,7 +24,6 @@ const EventMap = dynamic(() => import("@/components/ui/EventMap"), {
 });
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { useAuth } from "@/lib/auth-context";
 
 interface Artist {
@@ -37,6 +37,8 @@ interface EventData {
   id: string;
   title: string;
   image: string;
+  day: string;
+  month: string;
   date: string;
   time: string;
   duration: string;
@@ -60,6 +62,7 @@ interface EventData {
 
 export default function EventDetailPage() {
   const { user } = useAuth();
+  const { isLiked, toggleLike } = useLikes();
   const router = useRouter();
   const params = useParams();
   const id = params?.id as string;
@@ -68,6 +71,7 @@ export default function EventDetailPage() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [loadingBuy, setLoadingBuy] = useState(false);
+  const [showDuplicateModal, setShowDuplicateModal] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -81,6 +85,8 @@ export default function EventDetailPage() {
             id: snap.id,
             title: d.title ?? "Untitled Event",
             image: d.image ?? "",
+            day: d.day ?? "",
+            month: d.month ?? "",
             date: d.date ?? "TBA",
             time: d.time ?? "TBA",
             duration: d.duration ?? "",
@@ -146,6 +152,7 @@ export default function EventDetailPage() {
     );
   }
 
+  const isSoldOut = event.capacity > 0 && event.attendees >= event.capacity;
   const soldPct =
     event.capacity > 0
       ? Math.min(100, Math.round((event.attendees / event.capacity) * 100))
@@ -182,43 +189,30 @@ export default function EventDetailPage() {
     }
   };
 
-  const handleBuyClick = async () => {
-    if (!user) { router.push("/login"); return; }
-    if (!event) return;
-
+  const doPurchase = async () => {
+    if (!user || !event) return;
     setLoadingBuy(true);
-
     try {
       await addDoc(collection(db, "tickets"), {
         userId: user.uid,
-
         eventId: event.id,
-
         eventTitle: event.title,
         eventImage: event.image,
         eventDate: event.date,
         eventTime: event.time ?? "TBA",
         eventLocation: event.location,
-
         category: event.category,
-
         price: event.price ?? "Free",
-
         ticketNumber: Math.random().toString(36).substring(2, 8).toUpperCase(),
-
         status: "upcoming",
-
         purchasedAt: serverTimestamp(),
       });
-
+      await updateDoc(doc(db, "events", event.id), { attendees: increment(1) });
+      setEvent((prev) => prev ? { ...prev, attendees: prev.attendees + 1 } : prev);
       toast.success("Ticket purchased successfully!", {
         description: "Your ticket has been added to your account.",
-        style: {
-          background: "#00DF81",
-          color: "white",
-        },
+        style: { background: "#00DF81", color: "white" },
       });
-
       confetti({
         particleCount: 120,
         spread: 80,
@@ -227,11 +221,30 @@ export default function EventDetailPage() {
       });
     } catch (error) {
       console.log(error);
-
       toast.error("Purchase failed");
     } finally {
       setLoadingBuy(false);
     }
+  };
+
+  const handleBuyClick = async () => {
+    if (!user) { router.push("/login"); return; }
+    if (!event) return;
+
+    const existing = await getDocs(
+      query(
+        collection(db, "tickets"),
+        where("userId", "==", user.uid),
+        where("eventId", "==", event.id),
+      ),
+    );
+
+    if (!existing.empty) {
+      setShowDuplicateModal(true);
+      return;
+    }
+
+    await doPurchase();
   };
 
   return (
@@ -269,7 +282,24 @@ export default function EventDetailPage() {
             <button onClick={handleShare} className="w-10 h-10 bg-[#0c0c12]/70 backdrop-blur-sm border border-white/10 flex items-center justify-center active:scale-90 transition-transform">
               <Share2 size={16} strokeWidth={2.5} />
             </button>
-            <LikeButton />
+            <LikeButton
+              liked={isLiked(event.id)}
+              onToggle={() =>
+                toggleLike({
+                  eventId: event.id,
+                  title: event.title,
+                  image: event.image,
+                  date: event.day,
+                  month: event.month,
+                  hostName: event.host.name,
+                  hostAvatar: event.host.avatar,
+                  attendees: event.attendees,
+                  price: event.price === 0 ? "Free" : event.price,
+                  category: event.category,
+                  location: event.location,
+                })
+              }
+            />
           </div>
         </div>
 
@@ -533,11 +563,15 @@ export default function EventDetailPage() {
             </div>
             <button
               onClick={handleBuyClick}
-              disabled={loadingBuy}
-              className="flex-1 h-[50px] bg-primary-light font-display font-black text-[14px] uppercase tracking-widest text-white active:scale-[0.98] transition-transform flex items-center justify-center gap-2 disabled:opacity-70"
+              disabled={loadingBuy || isSoldOut}
+              className={`flex-1 h-[50px] font-display font-black text-[14px] uppercase tracking-widest text-white active:scale-[0.98] transition-transform flex items-center justify-center gap-2 disabled:opacity-70 ${
+                isSoldOut ? "bg-gray-700 cursor-not-allowed" : "bg-primary-light"
+              }`}
             >
               {loadingBuy ? (
                 <Loader2 className="animate-spin" size={20} />
+              ) : isSoldOut ? (
+                "Sold Out"
               ) : (
                 <>
                   Buy Ticket
@@ -548,6 +582,52 @@ export default function EventDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* ── Duplicate ticket confirmation modal ── */}
+      {showDuplicateModal && (
+        <div
+          className="fixed inset-0 z-[60] flex items-end"
+          onClick={() => setShowDuplicateModal(false)}
+        >
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+          <div
+            className="relative w-full max-w-lg mx-auto bg-[#111118] border-t border-white/10 px-5 pt-6 pb-10"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Icon */}
+            <div className="w-12 h-12 bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl">🎟️</span>
+            </div>
+
+            {/* Text */}
+            <h2 className="text-white font-display font-black text-[18px] uppercase tracking-wide text-center mb-2">
+              Already Got This One
+            </h2>
+            <p className="text-gray-400 text-[13px] text-center leading-relaxed mb-6">
+              You already own a ticket for{" "}
+              <span className="text-white font-bold">{event.title}</span>.
+              Do you want to buy another one?
+            </p>
+
+            {/* Actions */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDuplicateModal(false)}
+                className="flex-1 h-[48px] border border-white/15 text-gray-400 text-[12px] font-black uppercase tracking-widest active:scale-95 transition-transform"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => { setShowDuplicateModal(false); doPurchase(); }}
+                disabled={loadingBuy}
+                className="flex-1 h-[48px] bg-primary-light text-white text-[12px] font-black uppercase tracking-widest active:scale-95 transition-transform flex items-center justify-center gap-2 disabled:opacity-70"
+              >
+                {loadingBuy ? <Loader2 className="animate-spin" size={18} /> : "Buy Again"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
