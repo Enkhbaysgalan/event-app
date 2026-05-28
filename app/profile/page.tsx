@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
@@ -11,11 +11,12 @@ import {
   Utensils, Briefcase, Shirt, Flame,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { useFollows } from "@/lib/follows-context";
 import { auth, db, storage } from "@/lib/firebase";
 import {
   updateProfile, updateEmail, signOut,
 } from "firebase/auth";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { ArrowLeft } from "lucide-react";
 
@@ -56,10 +57,12 @@ function SettingsInput({
 
 export default function ProfilePage() {
   const { user, logout } = useAuth();
+  const { followedHosts } = useFollows();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [screen, setScreen] = useState<Screen>("profile");
+  const [attendedCount, setAttendedCount] = useState<number | null>(null);
   const [notifications] = useState(3);
 
   // Settings form state
@@ -72,6 +75,15 @@ export default function ProfilePage() {
 
   // Interests
   const [interests, setInterests] = useState<string[]>(["Music", "Tech"]);
+
+  // ── Attended count (unique events) ───────────
+  useEffect(() => {
+    if (!user) return;
+    getDocs(query(collection(db, "tickets"), where("userId", "==", user.uid))).then((snap) => {
+      const uniqueEvents = new Set(snap.docs.map((d) => d.data().eventId));
+      setAttendedCount(uniqueEvents.size);
+    });
+  }, [user]);
 
   // Avatar upload
   const [avatarUploading, setAvatarUploading] = useState(false);
@@ -316,11 +328,15 @@ export default function ProfilePage() {
       <div className="px-5 mb-6">
         <div className="grid grid-cols-2 gap-2">
           {[
-            { label: "Attended", value: "12" },
-            { label: "Following", value: "5" },
+            { label: "Attended", value: attendedCount },
+            { label: "Following", value: followedHosts.length },
           ].map(({ label, value }) => (
             <div key={label} className="bg-[#111118] border border-white/8 p-1 flex flex-col items-center justify-center gap-1">
-              <span className="font-display font-black text-[24px] text-white leading-none">{value}</span>
+              {value === null ? (
+                <Loader2 size={18} className="text-primary animate-spin" />
+              ) : (
+                <span className="font-display font-black text-[24px] text-white leading-none">{value}</span>
+              )}
               <span className="text-[9px] text-gray-600 uppercase tracking-widest font-black">{label}</span>
             </div>
           ))}

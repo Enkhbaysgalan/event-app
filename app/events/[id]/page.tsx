@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import LikeButton from "@/components/ui/LikeButton";
 import { useLikes } from "@/lib/likes-context";
+import { useFollows } from "@/lib/follows-context";
 import dynamic from "next/dynamic";
 
 const EventMap = dynamic(() => import("@/components/ui/EventMap"), {
@@ -50,6 +51,7 @@ interface EventData {
   attendees: number;
   capacity: number;
   host: {
+    uid: string;
     name: string;
     avatar: string;
     events: number;
@@ -63,6 +65,7 @@ interface EventData {
 export default function EventDetailPage() {
   const { user } = useAuth();
   const { isLiked, toggleLike } = useLikes();
+  const { isFollowing, toggleFollow } = useFollows();
   const router = useRouter();
   const params = useParams();
   const id = params?.id as string;
@@ -98,6 +101,7 @@ export default function EventDetailPage() {
             attendees: d.attendees ?? 0,
             capacity: d.capacity ?? 0,
             host: {
+              uid: d.host?.uid ?? "",
               name: d.host?.name ?? "Organizer",
               avatar: d.host?.avatar ?? "",
               events: d.host?.events ?? 0,
@@ -444,8 +448,18 @@ export default function EventDetailPage() {
                 {event.host.events} events · {event.host.followers} followers
               </p>
             </div>
-            <button className="px-3 py-2 border border-white/20 text-[10px] font-black uppercase tracking-wider text-gray-400 hover:border-primary hover:text-primary transition-colors">
-              Follow
+            <button
+              onClick={() => {
+                if (!user) { router.push("/login"); return; }
+                if (event.host.uid) toggleFollow({ hostUid: event.host.uid, hostName: event.host.name, hostAvatar: event.host.avatar });
+              }}
+              className={`px-3 py-2 border text-[10px] font-black uppercase tracking-wider transition-colors ${
+                isFollowing(event.host.uid)
+                  ? "border-primary text-primary"
+                  : "border-white/20 text-gray-400 hover:border-primary hover:text-primary"
+              }`}
+            >
+              {isFollowing(event.host.uid) ? "Following" : "Follow"}
             </button>
           </div>
         </div>

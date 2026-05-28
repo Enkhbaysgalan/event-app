@@ -15,3 +15,8 @@ export function setMemoryCache(data: EventCardProps[]) {
   memoryCache = data;
   cacheTime = Date.now();
 }
+
+export function clearMemoryCache() {
+  memoryCache = null;
+  cacheTime = 0;
+}

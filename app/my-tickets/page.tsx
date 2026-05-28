@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/lib/auth-context";
-import { Bell, Loader2, Ticket } from "lucide-react";
+import { Loader2, Ticket } from "lucide-react";
 import TicketCard, { TicketProps } from "@/components/tickets/TicketCard";
+import PullToRefresh from "@/components/ui/PullToRefresh";
 
 type Tab = "upcoming" | "past";
 
@@ -15,43 +16,43 @@ export default function MyTicketsPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>("upcoming");
 
-  useEffect(() => {
+  const fetchTickets = useCallback(async () => {
     if (!user) return;
-    const fetchTickets = async () => {
-      try {
-        const q = query(
-          collection(db, "tickets"),
-          where("userId", "==", user.uid),
-          orderBy("purchasedAt", "desc"),
-        );
-        const snapshot = await getDocs(q);
-        const fetched: TicketProps[] = snapshot.docs.map((doc) => {
-          const d = doc.data();
-          return {
-            id: doc.id,
-            eventId: d.eventId ?? "",
-            eventTitle: d.eventTitle ?? "Untitled Event",
-            eventImage: d.eventImage ?? "",
-            eventDate: d.eventDate ?? "TBA",
-            eventTime: d.eventTime ?? "TBA",
-            eventLocation: d.eventLocation ?? "TBA",
-            category: d.category ?? "Event",
-            price: d.price ?? 0,
-            ticketNumber: d.ticketNumber ?? doc.id.slice(-6).toUpperCase(),
-            status: d.status ?? "upcoming",
-            purchasedAt:
-              d.purchasedAt?.toDate?.()?.toLocaleDateString("en-US") ?? "",
-          };
-        });
-        setTickets(fetched);
-      } catch (err) {
-        console.error("Failed to fetch tickets:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTickets();
+    setLoading(true);
+    try {
+      const q = query(
+        collection(db, "tickets"),
+        where("userId", "==", user.uid),
+        orderBy("purchasedAt", "desc"),
+      );
+      const snapshot = await getDocs(q);
+      const fetched: TicketProps[] = snapshot.docs.map((doc) => {
+        const d = doc.data();
+        return {
+          id: doc.id,
+          eventId: d.eventId ?? "",
+          eventTitle: d.eventTitle ?? "Untitled Event",
+          eventImage: d.eventImage ?? "",
+          eventDate: d.eventDate ?? "TBA",
+          eventTime: d.eventTime ?? "TBA",
+          eventLocation: d.eventLocation ?? "TBA",
+          category: d.category ?? "Event",
+          price: d.price ?? 0,
+          ticketNumber: d.ticketNumber ?? doc.id.slice(-6).toUpperCase(),
+          status: d.status ?? "upcoming",
+          purchasedAt:
+            d.purchasedAt?.toDate?.()?.toLocaleDateString("en-US") ?? "",
+        };
+      });
+      setTickets(fetched);
+    } catch (err) {
+      console.error("Failed to fetch tickets:", err);
+    } finally {
+      setLoading(false);
+    }
   }, [user]);
+
+  useEffect(() => { fetchTickets(); }, [fetchTickets]);
 
   const upcoming = tickets.filter((t) => t.status === "upcoming");
   const past = tickets.filter(
@@ -60,6 +61,7 @@ export default function MyTicketsPage() {
   const displayed = activeTab === "upcoming" ? upcoming : past;
 
   return (
+    <PullToRefresh onRefresh={fetchTickets}>
     <div className="min-h-screen bg-[#0c0c12] text-white pb-24">
       {/* ── Header ── */}
       <div className="px-5 pt-12 pb-5">
@@ -121,5 +123,6 @@ export default function MyTicketsPage() {
         </div>
       )}
     </div>
+    </PullToRefresh>
   );
 }

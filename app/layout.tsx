@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { DM_Mono, Barlow_Condensed, DM_Sans, Oswald, Rubik } from "next/font/google";
 import { AuthProvider } from "@/lib/auth-context";
 import { LikesProvider } from "@/lib/likes-context";
+import { FollowsProvider } from "@/lib/follows-context";
 import { GoogleMapsProvider } from "@/components/providers/GoogleMapsProvider";
 import BottomNav from "@/components/ui/layout/BottomNav";
 import { Toaster } from "@/components/ui/sonner";
@@ -62,6 +63,7 @@ export default function RootLayout({
       <body className="bg-gray-50 antialiased font-sans">
         <AuthProvider>
           <LikesProvider>
+            <FollowsProvider>
             <GoogleMapsProvider>
               <main className="max-w-lg mx-auto min-h-screen bg-white relative">
                 {children}
@@ -69,6 +71,7 @@ export default function RootLayout({
               <Toaster position="top-center" />
               <BottomNav />
             </GoogleMapsProvider>
+            </FollowsProvider>
           </LikesProvider>
         </AuthProvider>
       </body>

@@ -1,6 +1,6 @@
 "use client";
 import { useAuth } from "@/lib/auth-context";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import {
@@ -17,8 +17,9 @@ import {
 } from "lucide-react";
 import EventCard, { EventCardProps } from "@/components/events/EventCard";
 import { useRouter } from "next/navigation";
-import { getMemoryCache, setMemoryCache } from "@/lib/cache/events-cache";
+import { getMemoryCache, setMemoryCache, clearMemoryCache } from "@/lib/cache/events-cache";
 import { Skeleton } from "@/components/ui/skeleton";
+import PullToRefresh from "@/components/ui/PullToRefresh";
 
 const CATEGORIES = [
   { label: "All", icon: Flame },
@@ -40,52 +41,52 @@ export default function ExplorePage() {
   const [showSearch, setShowSearch] = useState(false);
 
   // ── Fetch from Firestore ──
-  useEffect(() => {
-    const fetchEvents = async () => {
-      setLoadingEvent(true);
+  const fetchEvents = useCallback(async (skipCache = false) => {
+    setLoadingEvent(true);
 
-      // 1. MEMORY CACHE (instant load)
+    if (!skipCache) {
       const memory = getMemoryCache();
       if (memory) {
         setAllEvents(memory);
         setLoadingEvent(false);
         return;
       }
+    }
 
-      try {
-        const q = query(collection(db, "events"), orderBy("createdAt", "desc"));
-        const snapshot = await getDocs(q);
-
-        const fetched: EventCardProps[] = snapshot.docs.map((doc) => {
-          const d = doc.data();
-          return {
-            id: doc.id,
-            title: d.title ?? "Untitled Event",
-            image: d.image ?? "",
-            date: d.day ?? "01",
-            month: d.month ?? "JAN",
-            hostName: d.host?.name ?? "Organizer",
-            hostAvatar: d.host?.avatar ?? "",
-            attendees: d.attendees ?? 0,
-            price: d.price === 0 ? "Free" : d.price,
-            category: d.category ?? "Event",
-            location: d.location ?? "",
-          };
-        });
-
-        setAllEvents(fetched);
-
-        // 2. MEMORY CACHE update
-        setMemoryCache(fetched);
-      } catch (err) {
-        console.error("Failed to fetch events:", err);
-      } finally {
-        setLoadingEvent(false);
-      }
-    };
-
-    fetchEvents();
+    try {
+      const q = query(collection(db, "events"), orderBy("createdAt", "desc"));
+      const snapshot = await getDocs(q);
+      const fetched: EventCardProps[] = snapshot.docs.map((doc) => {
+        const d = doc.data();
+        return {
+          id: doc.id,
+          title: d.title ?? "Untitled Event",
+          image: d.image ?? "",
+          date: d.day ?? "01",
+          month: d.month ?? "JAN",
+          hostName: d.host?.name ?? "Organizer",
+          hostAvatar: d.host?.avatar ?? "",
+          attendees: d.attendees ?? 0,
+          price: d.price === 0 ? "Free" : d.price,
+          category: d.category ?? "Event",
+          location: d.location ?? "",
+        };
+      });
+      setAllEvents(fetched);
+      setMemoryCache(fetched);
+    } catch (err) {
+      console.error("Failed to fetch events:", err);
+    } finally {
+      setLoadingEvent(false);
+    }
   }, []);
+
+  useEffect(() => { fetchEvents(); }, [fetchEvents]);
+
+  const handleRefresh = async () => {
+    clearMemoryCache();
+    await fetchEvents(true);
+  };
 
   // ── Filter helper (same as before) ───────────
   const filterCards = (cards: EventCardProps[]) =>
@@ -112,6 +113,7 @@ export default function ExplorePage() {
   };
 
   return (
+    <PullToRefresh onRefresh={handleRefresh}>
     <div className="min-h-screen bg-[#0c0c12] pb-24 overflow-x-hidden font-display">
       {/* ── Header ── */}
       <div className="px-5 pt-12 pb-4">
@@ -189,7 +191,7 @@ export default function ExplorePage() {
               <SlidersHorizontal
                 size={16}
                 className="text-black"
-                strokeWidth={2.5}
+                  strokeWidth={2.5}
               />
             </button>
           </div>
@@ -319,5 +321,6 @@ export default function ExplorePage() {
         </>
       )}
     </div>
+    </PullToRefresh>
   );
 }
