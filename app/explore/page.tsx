@@ -70,6 +70,7 @@ export default function ExplorePage() {
           price: d.price === 0 ? "Free" : d.price,
           category: d.category ?? "Event",
           location: d.location ?? "",
+          blurDataUrl: d.blurDataUrl ?? "",
         };
       });
       setAllEvents(fetched);

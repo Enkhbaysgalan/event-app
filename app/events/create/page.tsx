@@ -24,6 +24,7 @@ import {
 import confetti from "canvas-confetti";
 import dynamic from "next/dynamic";
 import type { LocationValue } from "@/components/ui/LocationPicker";
+import { getBlurDataUrl } from "@/lib/blur";
 
 const LocationPicker = dynamic(() => import("@/components/ui/LocationPicker"), { ssr: false });
 
@@ -234,11 +235,13 @@ export default function CreateEventPage() {
     try {
       // 1. Upload image to Firebase Storage
       let imageUrl = "";
+      let blurDataUrl = "";
       if (imageFile) {
         const storageRef = ref(
           storage,
           `events/${Date.now()}_${imageFile.name}`,
         );
+        blurDataUrl = await getBlurDataUrl(imageFile);
         const snapshot = await uploadBytes(storageRef, imageFile);
         imageUrl = await getDownloadURL(snapshot.ref);
       }
@@ -273,6 +276,7 @@ export default function CreateEventPage() {
         capacity: Number(form.capacity),
         attendees: 0,
         image: imageUrl,
+        blurDataUrl,
         artists: form.artists,
         host: {
           name: user?.displayName ?? user?.email?.split("@")[0] ?? "Organizer",

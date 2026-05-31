@@ -10,6 +10,7 @@ export interface EventCardProps {
   id: string;
   title: string;
   image: string;
+  blurDataUrl: string;
   date: string;
   month: string;
   hostName: string;
@@ -32,12 +33,16 @@ export default function EventCard({
   price,
   category,
   location,
+  blurDataUrl,
 }: EventCardProps) {
   const router = useRouter();
   const { isLiked, toggleLike } = useLikes();
 
   return (
-    <div onClick={() => router.push(`/events/${id}`)} className="relative w-[260px] flex-shrink-0 bg-[#111118] border border-gray-600 overflow-hidden group cursor-pointer active:scale-[0.98] transition-transform duration-150">
+    <div
+      onClick={() => router.push(`/events/${id}`)}
+      className="relative w-[260px] flex-shrink-0 bg-[#111118] border border-gray-600 overflow-hidden group cursor-pointer active:scale-[0.98] transition-transform duration-150"
+    >
       {/* Event image */}
       <div className="relative w-full h-[160px] overflow-hidden bg-[#1e1e2e] flex items-center justify-center">
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 pointer-events-none">
@@ -55,6 +60,8 @@ export default function EventCard({
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-500"
             sizes="260px"
+            placeholder={blurDataUrl ? "blur" : "empty"} // ← add
+            blurDataURL={blurDataUrl ?? undefined}
             onError={(e) => {
               const target = e.target as HTMLImageElement;
               target.style.display = "none";
