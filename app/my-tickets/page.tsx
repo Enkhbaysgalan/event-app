@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/auth-context";
 import { Loader2, Ticket } from "lucide-react";
 import TicketCard, { TicketProps } from "@/components/tickets/TicketCard";
 import PullToRefresh from "@/components/ui/PullToRefresh";
+import TabToggle from "@/components/ui/TabToggle";
 
 type Tab = "upcoming" | "past";
 
@@ -52,7 +53,9 @@ export default function MyTicketsPage() {
     }
   }, [user]);
 
-  useEffect(() => { fetchTickets(); }, [fetchTickets]);
+  useEffect(() => {
+    fetchTickets();
+  }, [fetchTickets]);
 
   const upcoming = tickets.filter((t) => t.status === "upcoming");
   const past = tickets.filter(
@@ -62,9 +65,9 @@ export default function MyTicketsPage() {
 
   return (
     <PullToRefresh onRefresh={fetchTickets}>
-    <div className="min-h-screen bg-[#0c0c12] text-white pb-24">
-      {/* ── Header ── */}
-      <div className="px-5 pt-12 pb-5">
+      <div className="min-h-screen bg-[#0c0c12] text-white pb-24">
+        {/* ── Header ── */}
+        <div className="px-5 pt-12 pb-5">
           <div>
             <p className="text-[10px] text-gray-600 uppercase tracking-[0.2em] font-bold">
               Your
@@ -73,56 +76,45 @@ export default function MyTicketsPage() {
               Tickets
             </h1>
           </div>
-      </div>
-
-      {/* ── Tab toggle ── */}
-      <div className="px-5 mb-5">
-        <div className="flex bg-[#111118] border border-white/8 p-1 gap-1">
-          {(["upcoming", "past"] as Tab[]).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`flex-1 py-2.5 text-[11px] font-black uppercase tracking-widest transition-all duration-200 active:scale-95 ${
-                activeTab === tab
-                  ? "bg-white text-black"
-                  : "text-gray-600 hover:text-gray-400"
-              }`}
-            >
-              {tab === "upcoming"
-                ? `Upcoming (${upcoming.length})`
-                : `Past (${past.length})`}
-            </button>
-          ))}
         </div>
-      </div>
-
-      {/* ── Content ── */}
-      {loading ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-4">
-          <Loader2 size={28} className="text-primary animate-spin" />
-          <p className="text-[11px] text-gray-600 uppercase tracking-widest font-black">
-            Loading tickets...
-          </p>
+        {/* ── Tab toggle ── */}
+        <div className="px-5 mb-5">
+          <TabToggle
+            tabs={[
+              { value: "upcoming", label: `Upcoming (${upcoming.length})` },
+              { value: "past", label: `Past (${past.length})` },
+            ]}
+            active={activeTab}
+            onChange={setActiveTab}
+          />
         </div>
-      ) : displayed.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-4 px-5">
-          <div className="w-16 h-16 border border-dashed border-white/10 flex items-center justify-center">
-            <Ticket size={24} className="text-gray-700" strokeWidth={1.5} />
+        {/* ── Content ── */}
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-20 gap-4">
+            <Loader2 size={28} className="text-primary animate-spin" />
+            <p className="text-[11px] text-gray-600 uppercase tracking-widest font-black">
+              Loading tickets...
+            </p>
           </div>
-          <p className="text-gray-600 text-[12px] font-mono uppercase tracking-widest text-center">
-            {activeTab === "upcoming"
-              ? "No upcoming tickets"
-              : "No past tickets"}
-          </p>
-        </div>
-      ) : (
-        <div className="px-5 flex flex-col gap-3">
-          {displayed.map((ticket) => (
-            <TicketCard key={ticket.id} ticket={ticket} />
-          ))}
-        </div>
-      )}
-    </div>
+        ) : displayed.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 gap-4 px-5">
+            <div className="w-16 h-16 border border-dashed border-white/10 flex items-center justify-center">
+              <Ticket size={24} className="text-gray-700" strokeWidth={1.5} />
+            </div>
+            <p className="text-gray-600 text-[12px] font-mono uppercase tracking-widest text-center">
+              {activeTab === "upcoming"
+                ? "No upcoming tickets"
+                : "No past tickets"}
+            </p>
+          </div>
+        ) : (
+          <div className="px-5 flex flex-col gap-3">
+            {displayed.map((ticket) => (
+              <TicketCard key={ticket.id} ticket={ticket} />
+            ))}
+          </div>
+        )}
+      </div>
     </PullToRefresh>
   );
 }

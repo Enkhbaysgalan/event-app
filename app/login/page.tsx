@@ -2,12 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  getAuth,
-  GoogleAuthProvider,
-  signInWithPopup,
-} from "firebase/auth";
+import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { useAuth } from "@/lib/auth-context";
+import TabToggle from "@/components/ui/TabToggle";
 
 type Mode = "login" | "register";
 type Role = "attendee" | "organizer";
@@ -95,23 +92,18 @@ export default function LoginPage() {
       {/* Card */}
       <div className="w-full max-w-sm bg-[#1a1a24] rounded-3xl p-6 shadow-2xl border border-white/5">
         {/* Mode toggle */}
-        <div className="flex bg-[#0f0f13] rounded-2xl p-1 mb-6">
-          {(["login", "register"] as Mode[]).map((m) => (
-            <button
-              key={m}
-              onClick={() => {
-                setMode(m);
-                setError("");
-              }}
-              className={`flex-1 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                mode === m
-                  ? "bg-violet-600 text-white shadow-md shadow-violet-500/30"
-                  : "text-gray-500 hover:text-gray-300"
-              }`}
-            >
-              {m === "login" ? "Log In" : "Register"}
-            </button>
-          ))}
+        <div className="mb-6">
+          <TabToggle
+            tabs={[
+              { value: "login", label: "Log In" },
+              { value: "register", label: "Register" },
+            ]}
+            active={mode}
+            onChange={(m) => {
+              setMode(m as Mode);
+              setError("");
+            }}
+          />
         </div>
 
         {/* Role selector — register only */}
@@ -225,4 +217,4 @@ export default function LoginPage() {
       </p>
     </div>
   );
-} 
+}
