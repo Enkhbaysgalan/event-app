@@ -4,7 +4,6 @@ import { useEffect, useState, useCallback } from "react";
 import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import {
-  Bell,
   Search,
   SlidersHorizontal,
   Flame,
@@ -20,6 +19,7 @@ import { useRouter } from "next/navigation";
 import { getMemoryCache, setMemoryCache, clearMemoryCache } from "@/lib/cache/events-cache";
 import { Skeleton } from "@/components/ui/skeleton";
 import PullToRefresh from "@/components/ui/PullToRefresh";
+import NotificationBell from "@/components/ui/NotificationBell";
 
 const CATEGORIES = [
   { label: "All", icon: Flame },
@@ -35,7 +35,6 @@ export default function ExplorePage() {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [activeCategories, setActiveCategories] = useState<Set<string>>(new Set());
-  const [notifications] = useState(3);
   const [allEvents, setAllEvents] = useState<EventCardProps[]>([]);
   const [loadingEvent, setLoadingEvent] = useState(true);
   const [showSearch, setShowSearch] = useState(false);
@@ -109,9 +108,6 @@ export default function ExplorePage() {
   const upcomingFiltered = filterCards(upcoming);
   const nearbyFiltered = filterCards(nearby);
   const weekendFiltered = filterCards(weekend);
-  const handleLoginClick = () => {
-    router.push("/login");
-  };
 
   return (
     <PullToRefresh onRefresh={handleRefresh}>
@@ -126,10 +122,10 @@ export default function ExplorePage() {
             </div>
           ) : (
             <div>
-              <p className="text-[11px] text-gray-600 uppercase tracking-[0.2em] font-bold">
+              <p className="text-[10px] text-gray-600 uppercase tracking-[0.2em] font-bold font-sans">
                 Good evening,
               </p>
-              <h1 className="text-[22px] font-black text-white leading-tight mt-0.5">
+              <h1 className="font-display font-black text-[26px] uppercase tracking-wide leading-tight text-white">
                 {user?.displayName ?? "Explorer"}
               </h1>
             </div>
@@ -145,23 +141,7 @@ export default function ExplorePage() {
             </button>
 
             {/* Notification / Login */}
-            <button
-              onClick={!user ? handleLoginClick : undefined}
-              className="relative min-w-11 min-h-11 bg-[#1a1a26] border border-white/8 flex items-center justify-center active:scale-90 transition-transform"
-            >
-              {!user ? (
-                <span className="px-5 text-[14px] font-bold font-display text-white uppercase tracking-wide">
-                  Login
-                </span>
-              ) : (
-                <>
-                  <Bell size={18} className="text-gray-300" strokeWidth={2} />
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary-light text-[9px] font-black text-black flex items-center justify-center">
-                    3
-                  </span>
-                </>
-              )}
-            </button>
+            <NotificationBell />
           </div>
         </div>
 

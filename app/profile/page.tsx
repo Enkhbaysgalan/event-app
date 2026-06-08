@@ -4,13 +4,14 @@ import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
-  Bell, Camera, ChevronRight, LogOut,
+  Camera, ChevronRight, LogOut,
   Mail, MapPin, Pencil, Shield,
   UserX, X, Check, Loader2,
   Music, Cpu, Palette, Dumbbell,
   Utensils, Briefcase, Shirt, Flame,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import NotificationBell from "@/components/ui/NotificationBell";
 import { useFollows } from "@/lib/follows-context";
 import { auth, db, storage } from "@/lib/firebase";
 import {
@@ -63,7 +64,6 @@ export default function ProfilePage() {
 
   const [screen, setScreen] = useState<Screen>("profile");
   const [attendedCount, setAttendedCount] = useState<number | null>(null);
-  const [notifications] = useState(3);
 
   // Settings form state
   const [newName, setNewName] = useState(user?.displayName ?? "");
@@ -275,14 +275,7 @@ export default function ProfilePage() {
       {/* ── Top bar ── */}
       <div className="px-5 pt-12 pb-4 flex items-center justify-between">
         <p className="text-[11px] text-gray-600 uppercase tracking-[0.2em] font-black">Profile</p>
-        <button className="relative w-11 h-11 bg-[#1a1a26] border border-white/8 flex items-center justify-center active:scale-90 transition-transform">
-          <Bell size={18} className="text-gray-300" strokeWidth={2} />
-          {notifications > 0 && (
-            <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-[9px] font-black text-white flex items-center justify-center">
-              {notifications}
-            </span>
-          )}
-        </button>
+        <NotificationBell />
       </div>
 
       {/* ── Avatar ── */}

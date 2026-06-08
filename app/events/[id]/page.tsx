@@ -26,6 +26,7 @@ const EventMap = dynamic(() => import("@/components/ui/EventMap"), {
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
 import { useAuth } from "@/lib/auth-context";
+import { createNotification } from "@/lib/notifications";
 
 interface Artist {
   id?: string;
@@ -197,7 +198,7 @@ export default function EventDetailPage() {
     if (!user || !event) return;
     setLoadingBuy(true);
     try {
-      await addDoc(collection(db, "tickets"), {
+      const ticketRef = await addDoc(collection(db, "tickets"), {
         userId: user.uid,
         eventId: event.id,
         eventTitle: event.title,
@@ -212,6 +213,15 @@ export default function EventDetailPage() {
         purchasedAt: serverTimestamp(),
       });
       await updateDoc(doc(db, "events", event.id), { attendees: increment(1) });
+      createNotification({
+        userId: user.uid,
+        type: "ticket_purchased",
+        title: "Ticket confirmed!",
+        body: `You're going to ${event.title} on ${event.date}`,
+        image: event.image,
+        eventId: event.id,
+        ticketId: ticketRef.id,
+      });
       setEvent((prev) => prev ? { ...prev, attendees: prev.attendees + 1 } : prev);
       toast.success("Ticket purchased successfully!", {
         description: "Your ticket has been added to your account.",

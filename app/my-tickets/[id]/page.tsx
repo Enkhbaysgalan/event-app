@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import dynamic from "next/dynamic";
+import { createNotification } from "@/lib/notifications";
 
 const EventMap = dynamic(() => import("@/components/ui/EventMap"), { ssr: false });
 
@@ -124,6 +125,13 @@ export default function TicketDetailPage() {
         return;
       }
       await updateDoc(doc(db, "tickets", ticket.id), { userId: recipient.id });
+      createNotification({
+        userId: recipient.id,
+        type: "ticket_received",
+        title: "You received a ticket!",
+        body: `${user.displayName ?? "Someone"} sent you a ticket to ${ticket.eventTitle}`,
+        ticketId: ticket.id,
+      });
       toast.success("Ticket gifted successfully!");
       setGiftOpen(false);
       router.push("/my-tickets");

@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { notifyFollowers } from "@/lib/notifications";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/lib/firebase";
 import { useAuth } from "@/lib/auth-context";
@@ -289,7 +290,14 @@ export default function CreateEventPage() {
         createdBy: user?.uid ?? "",
       });
 
-      console.log("Event created:", docRef.id);
+      if (user?.uid) {
+        notifyFollowers(user.uid, {
+          title: `New event from ${user.displayName ?? "an organizer"}`,
+          body: `${form.title.trim()} — ${form.location.trim()}`,
+          image: imageUrl || undefined,
+          eventId: docRef.id,
+        });
+      }
       setSuccess(true);
       confetti({
         particleCount: 120,
