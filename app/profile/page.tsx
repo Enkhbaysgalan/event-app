@@ -57,7 +57,7 @@ function SettingsInput({
 }
 
 export default function ProfilePage() {
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUser } = useAuth();
   const { followedHosts } = useFollows();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -105,7 +105,7 @@ export default function ProfilePage() {
       const url = await getDownloadURL(snapshot.ref);
       await updateProfile(auth.currentUser, { photoURL: url });
       await updateDoc(doc(db, "users", auth.currentUser.uid), { photoURL: url });
-      window.location.reload();
+      await refreshUser();
     } catch (err) {
       console.error(err);
     } finally {
@@ -127,6 +127,7 @@ export default function ProfilePage() {
         await updateEmail(auth.currentUser, newEmail);
         await updateDoc(doc(db, "users", auth.currentUser.uid), { email: newEmail });
       }
+      await refreshUser();
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 2000);
     } catch (err: any) {

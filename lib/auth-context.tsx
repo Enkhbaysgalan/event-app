@@ -48,6 +48,7 @@ interface AuthContextType {
   ) => Promise<void>;
   loginWithGoogle: (role?: UserRole) => Promise<void>;
   logout: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -181,6 +182,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     clearUserCache();
   };
 
+  const refreshUser = async () => {
+    const firebaseUser = auth.currentUser;
+    if (!firebaseUser) return;
+    const appUser = await getOrCreateUserProfile(firebaseUser);
+    setUser(appUser);
+    saveUserCache(appUser);
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -190,6 +199,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         registerWithEmail,
         loginWithGoogle,
         logout,
+        refreshUser,
       }}
     >
       {children}
