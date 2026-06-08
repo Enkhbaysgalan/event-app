@@ -114,7 +114,7 @@ export default function ExplorePage() {
     <div className="min-h-screen bg-[#0c0c12] pb-24 overflow-x-hidden font-display">
       {/* ── Header ── */}
       <div className="px-5 pt-12 pb-4">
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex items-start justify-between gap-2">
           {loading ? (
             <div className="space-y-2">
               <Skeleton className="h-3 w-24" />

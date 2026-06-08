@@ -273,7 +273,7 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-[#0c0c12] text-white pb-28">
 
       {/* ── Top bar ── */}
-      <div className="px-5 pt-12 pb-4 flex items-center justify-between">
+      <div className="px-5 pt-12 pb-4 flex items-start justify-between">
         <p className="text-[11px] text-gray-600 uppercase tracking-[0.2em] font-black">Profile</p>
         <NotificationBell />
       </div>
