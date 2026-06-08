@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { useAuth } from "@/lib/auth-context";
@@ -75,22 +76,22 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f0f13] flex flex-col items-center justify-center px-5 py-10">
+    <div className="min-h-screen bg-[#0c0c12] flex flex-col items-center justify-center px-5 py-10">
       {/* Logo */}
       <div className="mb-8 text-center">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-500 mb-3 shadow-lg shadow-violet-500/30">
-          <span className="text-2xl">🎪</span>
+        <div className="mb-3 flex justify-center">
+          <Image src="/logo.png" alt="Imin" width={48} height={48} priority />
         </div>
-        <h1 className="text-2xl font-bold text-white tracking-tight">
-          Eventify
+        <h1 className="text-2xl font-black text-white tracking-tight font-display uppercase">
+          IMIN
         </h1>
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="text-[10px] text-gray-600 mt-1 uppercase tracking-widest font-bold">
           {mode === "login" ? "Welcome back" : "Create your account"}
         </p>
       </div>
 
       {/* Card */}
-      <div className="w-full max-w-sm bg-[#1a1a24] rounded-3xl p-6 shadow-2xl border border-white/5">
+      <div className="w-full max-w-sm bg-[#1a1a26] p-6">
         {/* Mode toggle */}
         <div className="mb-6">
           <TabToggle
@@ -109,21 +110,21 @@ export default function LoginPage() {
         {/* Role selector — register only */}
         {mode === "register" && (
           <div className="mb-5">
-            <p className="text-xs text-gray-500 mb-2 font-medium uppercase tracking-wider">
+            <p className="text-[10px] text-gray-600 mb-2 font-black uppercase tracking-widest">
               I am a
             </p>
-            <div className="flex gap-3">
+            <div className="flex gap-2">
               {(["attendee", "organizer"] as Role[]).map((r) => (
                 <button
                   key={r}
                   onClick={() => setRole(r)}
-                  className={`flex-1 py-3 rounded-2xl text-sm font-semibold border transition-all duration-200 ${
+                  className={`flex-1 py-3 text-[11px] font-black uppercase tracking-widest border transition-all duration-200 ${
                     role === r
-                      ? "bg-violet-600/20 border-violet-500 text-violet-300"
-                      : "border-white/10 text-gray-500 hover:border-white/20 hover:text-gray-300"
+                      ? "bg-primary-light border-primary-light text-black"
+                      : "border-white/8 text-gray-500 hover:border-white/20 hover:text-gray-300"
                   }`}
                 >
-                  {r === "attendee" ? "🎟 Attendee" : "🎙 Organizer"}
+                  {r === "attendee" ? "Attendee" : "Organizer"}
                 </button>
               ))}
             </div>
@@ -131,14 +132,14 @@ export default function LoginPage() {
         )}
 
         {/* Fields */}
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2">
           {mode === "register" && (
             <input
               type="text"
               placeholder="Your name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-[#0f0f13] border border-white/10 rounded-2xl px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-violet-500 transition-colors"
+              className="w-full bg-[#111118] border border-white/8 px-4 h-11 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-primary-light transition-colors"
             />
           )}
           <input
@@ -146,20 +147,20 @@ export default function LoginPage() {
             placeholder="Email address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full bg-[#0f0f13] border border-white/10 rounded-2xl px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-violet-500 transition-colors"
+            className="w-full bg-[#111118] border border-white/8 px-4 h-11 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-primary-light transition-colors"
           />
           <input
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full bg-[#0f0f13] border border-white/10 rounded-2xl px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-violet-500 transition-colors"
+            className="w-full bg-[#111118] border border-white/8 px-4 h-11 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-primary-light transition-colors"
           />
         </div>
 
         {/* Error */}
         {error && (
-          <div className="mt-4 px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-2xl">
+          <div className="mt-4 px-4 py-3 bg-red-500/10 border border-red-500/20">
             <p className="text-red-400 text-sm">{error}</p>
           </div>
         )}
@@ -168,7 +169,7 @@ export default function LoginPage() {
         <button
           onClick={handleSubmit}
           disabled={loading}
-          className="mt-5 w-full py-3.5 bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-bold rounded-2xl shadow-lg shadow-violet-500/30 active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+          className="mt-5 w-full h-12 bg-primary-light text-black font-black text-[12px] uppercase tracking-widest active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading
             ? "Please wait..."
@@ -179,16 +180,16 @@ export default function LoginPage() {
 
         {/* Divider */}
         <div className="flex items-center gap-3 my-4">
-          <div className="flex-1 h-px bg-white/5" />
-          <span className="text-xs text-gray-600">or</span>
-          <div className="flex-1 h-px bg-white/5" />
+          <div className="flex-1 h-px bg-white/8" />
+          <span className="text-[10px] text-gray-600 uppercase tracking-widest font-bold">or</span>
+          <div className="flex-1 h-px bg-white/8" />
         </div>
 
         {/* Google */}
         <button
           onClick={handleGoogle}
           disabled={loading}
-          className="w-full py-3.5 bg-white text-gray-800 font-bold rounded-2xl flex items-center justify-center gap-2 active:scale-95 transition-all duration-200 disabled:opacity-50 text-sm shadow-md"
+          className="w-full h-12 bg-white text-gray-900 font-black text-[12px] uppercase tracking-widest flex items-center justify-center gap-2 active:scale-95 transition-all duration-200 disabled:opacity-50"
         >
           <svg width="18" height="18" viewBox="0 0 48 48">
             <path
@@ -212,7 +213,7 @@ export default function LoginPage() {
         </button>
       </div>
 
-      <p className="text-xs text-gray-700 mt-6">
+      <p className="text-[10px] text-gray-700 mt-6 uppercase tracking-widest">
         By continuing you agree to our Terms &amp; Privacy Policy
       </p>
     </div>

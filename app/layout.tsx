@@ -39,7 +39,7 @@ const rubik = Rubik({
 });
 
 export const metadata: Metadata = {
-  title: "Eventify",
+  title: "Imin",
   description: "Discover and organize events near you",
 };
 
