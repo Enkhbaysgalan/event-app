@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import LikeIcon from "@/components/icons/recHeart";
+import { playPop } from "@/lib/sounds";
 
 interface LikeButtonProps {
   liked?: boolean;           // controlled — if provided, overrides internal state
@@ -23,6 +24,7 @@ export default function LikeButton({
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
+    playPop();
     const next = !liked;
     if (!isControlled) setInternalLiked(next);
     onToggle?.(next);

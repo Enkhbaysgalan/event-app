@@ -4,7 +4,6 @@ import { Bell } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useNotifications } from "@/lib/notifications-context";
-
 export default function NotificationBell() {
   const router = useRouter();
   const { user } = useAuth();
@@ -12,7 +11,7 @@ export default function NotificationBell() {
 
   return (
     <button
-      onClick={() => router.push(user ? "/notifications" : "/login")}
+      onClick={() => { router.push(user ? "/notifications" : "/login"); }}
       className="relative min-w-11 min-h-11 bg-[#1a1a26] border border-white/8 flex items-center justify-center active:scale-90 transition-transform"
     >
       {!user ? (

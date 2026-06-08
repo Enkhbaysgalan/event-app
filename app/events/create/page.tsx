@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { notifyFollowers } from "@/lib/notifications";
+import { playSuccess } from "@/lib/sounds";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/lib/firebase";
 import { useAuth } from "@/lib/auth-context";
@@ -298,6 +299,7 @@ export default function CreateEventPage() {
           eventId: docRef.id,
         });
       }
+      playSuccess();
       setSuccess(true);
       confetti({
         particleCount: 120,

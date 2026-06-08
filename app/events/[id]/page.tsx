@@ -27,6 +27,7 @@ import { toast } from "sonner";
 import confetti from "canvas-confetti";
 import { useAuth } from "@/lib/auth-context";
 import { createNotification } from "@/lib/notifications";
+import { playSuccess, playFollow } from "@/lib/sounds";
 
 interface Artist {
   id?: string;
@@ -223,6 +224,7 @@ export default function EventDetailPage() {
         ticketId: ticketRef.id,
       });
       setEvent((prev) => prev ? { ...prev, attendees: prev.attendees + 1 } : prev);
+      playSuccess();
       toast.success("Ticket purchased successfully!", {
         description: "Your ticket has been added to your account.",
         style: { background: "#00DF81", color: "white" },
@@ -461,7 +463,7 @@ export default function EventDetailPage() {
             <button
               onClick={() => {
                 if (!user) { router.push("/login"); return; }
-                if (event.host.uid) toggleFollow({ hostUid: event.host.uid, hostName: event.host.name, hostAvatar: event.host.avatar });
+                if (event.host.uid) { playFollow(); toggleFollow({ hostUid: event.host.uid, hostName: event.host.name, hostAvatar: event.host.avatar }); }
               }}
               className={`px-3 py-2 border text-[10px] font-black uppercase tracking-wider transition-colors ${
                 isFollowing(event.host.uid)

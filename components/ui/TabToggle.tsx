@@ -1,3 +1,5 @@
+import { playTick } from "@/lib/sounds";
+
 interface TabItem<T extends string> {
   value: T;
   label: string;
@@ -17,7 +19,7 @@ export default function TabToggle<T extends string>({
       {tabs.map(({ value, label }) => (
         <button
           key={value}
-          onClick={() => onChange(value)}
+          onClick={() => { playTick(); onChange(value); }}
           className={`flex-1 py-2.5 text-[11px] font-black uppercase tracking-widest transition-all duration-200 active:scale-95 ${
             active === value
               ? "bg-white text-black"

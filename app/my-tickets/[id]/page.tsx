@@ -26,6 +26,7 @@ import {
 import { toast } from "sonner";
 import dynamic from "next/dynamic";
 import { createNotification } from "@/lib/notifications";
+import { playSuccess } from "@/lib/sounds";
 
 const EventMap = dynamic(() => import("@/components/ui/EventMap"), { ssr: false });
 
@@ -116,12 +117,16 @@ export default function TicketDetailPage() {
       );
       const usersSnap = await getDocs(usersQ);
       if (usersSnap.empty) {
-        toast.error("No user found with that email.");
+        toast.error("User doesn't exist. Check the email and try again.", {
+          style: { background: "#1a0505", color: "#f87171", border: "1px solid #7f1d1d" },
+        });
         return;
       }
       const recipient = usersSnap.docs[0];
       if (recipient.id === user.uid) {
-        toast.error("You can't gift a ticket to yourself.");
+        toast.error("You can't gift a ticket to yourself.", {
+          style: { background: "#1a0505", color: "#f87171", border: "1px solid #7f1d1d" },
+        });
         return;
       }
       await updateDoc(doc(db, "tickets", ticket.id), { userId: recipient.id });
@@ -132,11 +137,16 @@ export default function TicketDetailPage() {
         body: `${user.displayName ?? "Someone"} sent you a ticket to ${ticket.eventTitle}`,
         ticketId: ticket.id,
       });
-      toast.success("Ticket gifted successfully!");
+      playSuccess();
+      toast.success("Ticket gifted successfully!", {
+        style: { background: "#001a0d", color: "#00DF81", border: "1px solid #064e3b" },
+      });
       setGiftOpen(false);
       router.push("/my-tickets");
     } catch {
-      toast.error("Something went wrong. Please try again.");
+      toast.error("Something went wrong. Please try again.", {
+        style: { background: "#1a0505", color: "#f87171", border: "1px solid #7f1d1d" },
+      });
     } finally {
       setGifting(false);
     }
