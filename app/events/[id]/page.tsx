@@ -14,6 +14,7 @@ import {
   ChevronRight,
   Share2,
   Loader2,
+  Pencil,
 } from "lucide-react";
 import LikeButton from "@/components/ui/LikeButton";
 import { useLikes } from "@/lib/likes-context";
@@ -567,12 +568,22 @@ export default function EventDetailPage() {
           )}
         </div>
         <div className="h-px bg-white/5 mb-6" />
-        <p
-          onClick={handleToastClick}
-          className="text-[10px] text-red-500 uppercase tracking-widest text-center font-black cursor-pointer"
-        >
-          Report Event
-        </p>
+        {user?.uid === event.host.uid ? (
+          <button
+            onClick={() => router.push(`/events/${event.id}/edit`)}
+            className="w-full flex items-center justify-center gap-2 py-3 border border-white/10 text-[11px] font-black uppercase tracking-widest text-gray-400 active:scale-[0.98] transition-transform"
+          >
+            <Pencil size={13} strokeWidth={2.5} />
+            Edit Event
+          </button>
+        ) : (
+          <p
+            onClick={handleToastClick}
+            className="text-[10px] text-red-500 uppercase tracking-widest text-center font-black cursor-pointer"
+          >
+            Report Event
+          </p>
+        )}
       </div>
 
       {/* ── Sticky CTA ── */}
