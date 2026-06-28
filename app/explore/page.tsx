@@ -42,6 +42,9 @@ export default function ExplorePage() {
   const [filterDate, setFilterDate] = useState<"any" | "today" | "week" | "month">("any");
   const [filterPrice, setFilterPrice] = useState<"any" | "free" | "low" | "mid">("any");
   const [filterLocation, setFilterLocation] = useState("");
+  const [draftDate, setDraftDate] = useState<"any" | "today" | "week" | "month">("any");
+  const [draftPrice, setDraftPrice] = useState<"any" | "free" | "low" | "mid">("any");
+  const [draftLocation, setDraftLocation] = useState("");
   const [showFilterModal, setShowFilterModal] = useState(false);
 
   // ── Fetch from Firestore ──
@@ -124,9 +127,10 @@ export default function ExplorePage() {
       let matchPrice = true;
       if (filterPrice !== "any") {
         const p = c.price;
-        if (filterPrice === "free") matchPrice = p === "Free" || p === 0;
-        else if (filterPrice === "low") matchPrice = typeof p === "number" && p > 0 && p <= 10;
-        else if (filterPrice === "mid") matchPrice = typeof p === "number" && p > 10 && p <= 50;
+        const numeric = p === "Free" ? 0 : (typeof p === "number" ? p : Infinity);
+        if (filterPrice === "free") matchPrice = numeric === 0;
+        else if (filterPrice === "low") matchPrice = numeric <= 10;
+        else if (filterPrice === "mid") matchPrice = numeric <= 50;
       }
 
       const matchLocation =
@@ -250,7 +254,12 @@ export default function ExplorePage() {
             const hasActive = filterDate !== "any" || filterPrice !== "any" || filterLocation.trim() !== "";
             return (
               <button
-                onClick={() => setShowFilterModal(true)}
+                onClick={() => {
+                  setDraftDate(filterDate);
+                  setDraftPrice(filterPrice);
+                  setDraftLocation(filterLocation);
+                  setShowFilterModal(true);
+                }}
                 className={`relative w-11 h-9 border flex items-center justify-center active:scale-90 transition-transform ${
                   hasActive ? "bg-primary-light border-primary-light" : "bg-[#1a1a26] border-white/8"
                 }`}
@@ -384,9 +393,9 @@ export default function ExplorePage() {
                 {([ ["any","Any"], ["today","Today"], ["week","This Week"], ["month","This Month"] ] as const).map(([val, label]) => (
                   <button
                     key={val}
-                    onClick={() => setFilterDate(val)}
+                    onClick={() => setDraftDate(val)}
                     className={`px-3 h-8 text-[11px] font-black uppercase tracking-wide border transition-all active:scale-95 ${
-                      filterDate === val
+                      draftDate === val
                         ? "bg-primary-light border-primary-light text-black"
                         : "border-white/10 text-gray-500"
                     }`}
@@ -404,9 +413,9 @@ export default function ExplorePage() {
                 {([ ["any","Any"], ["free","Free"], ["low","Under 10k"], ["mid","Under 50k"] ] as const).map(([val, label]) => (
                   <button
                     key={val}
-                    onClick={() => setFilterPrice(val)}
+                    onClick={() => setDraftPrice(val)}
                     className={`px-3 h-8 text-[11px] font-black uppercase tracking-wide border transition-all active:scale-95 ${
-                      filterPrice === val
+                      draftPrice === val
                         ? "bg-primary-light border-primary-light text-black"
                         : "border-white/10 text-gray-500"
                     }`}
@@ -423,8 +432,8 @@ export default function ExplorePage() {
               <input
                 type="text"
                 placeholder="City or venue..."
-                value={filterLocation}
-                onChange={(e) => setFilterLocation(e.target.value)}
+                value={draftLocation}
+                onChange={(e) => setDraftLocation(e.target.value)}
                 className="w-full bg-[#0c0c12] border border-white/8 px-4 h-11 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-primary-light transition-colors"
               />
             </div>
@@ -432,13 +441,13 @@ export default function ExplorePage() {
             {/* Actions */}
             <div className="flex gap-3">
               <button
-                onClick={() => { setFilterDate("any"); setFilterPrice("any"); setFilterLocation(""); }}
+                onClick={() => { setDraftDate("any"); setDraftPrice("any"); setDraftLocation(""); setFilterDate("any"); setFilterPrice("any"); setFilterLocation(""); setShowFilterModal(false); }}
                 className="flex-1 h-11 border border-white/10 text-gray-500 text-[11px] font-black uppercase tracking-widest active:scale-95 transition-transform"
               >
                 Reset
               </button>
               <button
-                onClick={() => setShowFilterModal(false)}
+                onClick={() => { setFilterDate(draftDate); setFilterPrice(draftPrice); setFilterLocation(draftLocation); setShowFilterModal(false); }}
                 className="flex-1 h-11 bg-primary-light text-black text-[11px] font-black uppercase tracking-widest active:scale-95 transition-transform"
               >
                 Apply
