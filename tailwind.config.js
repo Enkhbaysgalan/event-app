@@ -12,19 +12,13 @@ module.exports = {
         mono: ["var(--font-mono)"],
       },
       colors: {
-        primary: {
-          DEFAULT: "#05ff23",
-          light: "#00DF81",
-          dark: "#06302B",
-        },
-        secondary: {
-          DEFAULT: "#d946ef",  
-          light: "#e879f9",    
-          dark: "#c026d3",    
+        primary: "#1db233",
+        secondary: {  
+          DEFAULT: "#f8bf3b", 
         },
         surface: {
           DEFAULT: "#1a1a26",  // card background
-          deep: "#0c0c12",     // page background
+          deep: "#170e13",     // page background
           raised: "#1e1e2e",   // elevated elements
         },
         accent: "#f59e0b",     // amber — for highlights

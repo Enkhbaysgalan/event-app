@@ -362,7 +362,7 @@ export default function TicketDetailPage() {
               <button
                 onClick={handleGift}
                 disabled={gifting || !recipientEmail.trim()}
-                className="flex-1 py-3 bg-primary text-white text-[11px] font-black uppercase tracking-widest flex items-center justify-center active:scale-95 transition-transform disabled:opacity-40"
+                className="flex-1 py-3 bg-secondary text-white text-[11px] font-black uppercase tracking-widest flex items-center justify-center active:scale-95 transition-transform disabled:opacity-40"
               >
                 {gifting
                   ? <Loader2 size={14} className="animate-spin" />

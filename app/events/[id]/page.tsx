@@ -228,7 +228,7 @@ export default function EventDetailPage() {
       playSuccess();
       toast.success("Ticket purchased successfully!", {
         description: "Your ticket has been added to your account.",
-        style: { background: "#00DF81", color: "white" },
+        style: { background: "#457534", color: "white" },
       });
       confetti({
         particleCount: 120,
@@ -322,7 +322,7 @@ export default function EventDetailPage() {
 
         {/* Category */}
         <div className="absolute bottom-6 left-5">
-          <span className="px-3 py-1.5 bg-primary-light text-black text-[12px] font-bold uppercase tracking-wide font-display">
+          <span className="px-3 py-1.5 bg-primary text-black text-[12px] font-bold uppercase tracking-wide font-display">
             {event.category}
           </span>
         </div>
@@ -601,8 +601,8 @@ export default function EventDetailPage() {
             <button
               onClick={handleBuyClick}
               disabled={loadingBuy || isSoldOut}
-              className={`flex-1 h-[50px] font-display font-black text-[14px] uppercase tracking-widest text-white active:scale-[0.98] transition-transform flex items-center justify-center gap-2 disabled:opacity-70 ${
-                isSoldOut ? "bg-gray-700 cursor-not-allowed" : "bg-primary-light"
+              className={`flex-1 h-[50px] font-display font-black text-[14px] uppercase tracking-widest text-black active:scale-[0.98] transition-transform flex items-center justify-center gap-2 disabled:opacity-70 ${
+                isSoldOut ? "bg-gray-700 cursor-not-allowed" : "bg-secondary"
               }`}
             >
               {loadingBuy ? (
@@ -657,7 +657,7 @@ export default function EventDetailPage() {
               <button
                 onClick={() => { setShowDuplicateModal(false); doPurchase(); }}
                 disabled={loadingBuy}
-                className="flex-1 h-[48px] bg-primary-light text-white text-[12px] font-black uppercase tracking-widest active:scale-95 transition-transform flex items-center justify-center gap-2 disabled:opacity-70"
+                className="flex-1 h-[48px] bg-secondary text-black text-[12px] font-black uppercase tracking-widest active:scale-95 transition-transform flex items-center justify-center gap-2 disabled:opacity-70"
               >
                 {loadingBuy ? <Loader2 className="animate-spin" size={18} /> : "Buy Again"}
               </button>

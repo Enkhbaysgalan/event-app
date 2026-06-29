@@ -5,7 +5,6 @@ import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import {
   Search,
-  SlidersHorizontal,
   Flame,
   Music,
   Cpu,
@@ -13,7 +12,6 @@ import {
   Dumbbell,
   Loader2,
   BriefcaseBusiness,
-  X,
 } from "lucide-react";
 import EventCard, { EventCardProps } from "@/components/events/EventCard";
 import { useRouter } from "next/navigation";
@@ -39,13 +37,6 @@ export default function ExplorePage() {
   const [allEvents, setAllEvents] = useState<EventCardProps[]>([]);
   const [loadingEvent, setLoadingEvent] = useState(true);
   const [showSearch, setShowSearch] = useState(false);
-  const [filterDate, setFilterDate] = useState<"any" | "today" | "week" | "month">("any");
-  const [filterPrice, setFilterPrice] = useState<"any" | "free" | "low" | "mid">("any");
-  const [filterLocation, setFilterLocation] = useState("");
-  const [draftDate, setDraftDate] = useState<"any" | "today" | "week" | "month">("any");
-  const [draftPrice, setDraftPrice] = useState<"any" | "free" | "low" | "mid">("any");
-  const [draftLocation, setDraftLocation] = useState("");
-  const [showFilterModal, setShowFilterModal] = useState(false);
 
   // ── Fetch from Firestore ──
   const fetchEvents = useCallback(async (skipCache = false) => {
@@ -96,14 +87,8 @@ export default function ExplorePage() {
     await fetchEvents(true);
   };
 
-  // ── Filter helper ────────────────────────────
-  const MONTH_IDX: Record<string, number> = {
-    JAN:0,FEB:1,MAR:2,APR:3,MAY:4,JUN:5,JUL:6,AUG:7,SEP:8,OCT:9,NOV:10,DEC:11,
-  };
-
-  const filterCards = (cards: EventCardProps[]) => {
-    const now = new Date();
-    return cards.filter((c) => {
+  const filterCards = (cards: EventCardProps[]) =>
+    cards.filter((c) => {
       const matchSearch =
         search === "" ||
         c.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -112,36 +97,9 @@ export default function ExplorePage() {
       const matchCat =
         activeCategories.size === 0 || activeCategories.has(c.category ?? "");
 
-      let matchDate = true;
-      if (filterDate !== "any") {
-        const m = MONTH_IDX[c.month?.toUpperCase() ?? ""] ?? now.getMonth();
-        const d = parseInt(c.date) || now.getDate();
-        const ev = new Date(now.getFullYear(), m, d);
-        if (filterDate === "today") matchDate = ev.toDateString() === now.toDateString();
-        else if (filterDate === "week") {
-          const week = new Date(now); week.setDate(now.getDate() + 7);
-          matchDate = ev >= now && ev <= week;
-        } else if (filterDate === "month") matchDate = m === now.getMonth();
-      }
-
-      let matchPrice = true;
-      if (filterPrice !== "any") {
-        const p = c.price;
-        const numeric = p === "Free" ? 0 : (typeof p === "number" ? p : Infinity);
-        if (filterPrice === "free") matchPrice = numeric === 0;
-        else if (filterPrice === "low") matchPrice = numeric <= 10;
-        else if (filterPrice === "mid") matchPrice = numeric <= 50;
-      }
-
-      const matchLocation =
-        !filterLocation.trim() ||
-        (c.location ?? "").toLowerCase().includes(filterLocation.toLowerCase().trim());
-
-      return matchSearch && matchCat && matchDate && matchPrice && matchLocation;
+      return matchSearch && matchCat;
     });
-  };
 
-  // Same 3 sections — newest, nearby (second half), weekend (reversed)
   const upcoming = allEvents.slice(0, Math.ceil(allEvents.length / 2));
   const nearby = allEvents.slice(Math.ceil(allEvents.length / 2));
   const weekend = [...allEvents].reverse();
@@ -173,20 +131,16 @@ export default function ExplorePage() {
           )}
 
           <div className="flex items-center gap-2 flex-shrink-0">
-            {/* Search toggle button */}
             <button
               onClick={() => setShowSearch((p) => !p)}
               className="w-11 h-11 bg-[#1a1a26] border border-white/8 flex items-center justify-center active:scale-90 transition-transform"
             >
               <Search size={18} className="text-gray-300" strokeWidth={2} />
             </button>
-
-            {/* Notification / Login */}
             <NotificationBell />
           </div>
         </div>
 
-        {/* Expandable search bar */}
         {showSearch && (
           <div className="mt-4">
             <div className="flex items-center gap-2 bg-[#1a1a26] border border-white/8 px-3 h-11">
@@ -210,9 +164,8 @@ export default function ExplorePage() {
       </div>
 
       {/* ── Categories ── */}
-      <div className="flex items-center mb-7">
-        {/* Scrollable category pills */}
-        <div className="flex gap-2 pl-5 overflow-x-auto scrollbar-none flex-1 min-w-0">
+      <div className="flex items-center mb-7 pl-5 pr-5">
+        <div className="flex gap-2 overflow-x-auto scrollbar-none">
           {CATEGORIES.map(({ label, icon: Icon }) => {
             const isAll = label === "All";
             const active = isAll
@@ -243,38 +196,6 @@ export default function ExplorePage() {
               </button>
             );
           })}
-        </div>
-
-        {/* Separator */}
-        <div className="w-px h-5 bg-white/10 flex-shrink-0 mx-3" />
-
-        {/* Filter button — fixed right */}
-        <div className="pr-5 flex-shrink-0">
-          {(() => {
-            const hasActive = filterDate !== "any" || filterPrice !== "any" || filterLocation.trim() !== "";
-            return (
-              <button
-                onClick={() => {
-                  setDraftDate(filterDate);
-                  setDraftPrice(filterPrice);
-                  setDraftLocation(filterLocation);
-                  setShowFilterModal(true);
-                }}
-                className={`relative w-11 h-9 border flex items-center justify-center active:scale-90 transition-transform ${
-                  hasActive ? "bg-primary-light border-primary-light" : "bg-[#1a1a26] border-white/8"
-                }`}
-              >
-                <SlidersHorizontal
-                  size={16}
-                  className={hasActive ? "text-black" : "text-gray-300"}
-                  strokeWidth={2.5}
-                />
-                {hasActive && (
-                  <span className="absolute -top-1 -right-1 w-2 h-2 bg-primary" />
-                )}
-              </button>
-            );
-          })()}
         </div>
       </div>
 
@@ -307,9 +228,7 @@ export default function ExplorePage() {
               </div>
             ) : (
               <div className="mx-5 h-32 border border-dashed border-white/10 flex items-center justify-center">
-                <p className="text-gray-600 text-[12px] font-mono">
-                  No events found
-                </p>
+                <p className="text-gray-600 text-[12px] font-mono">No events found</p>
               </div>
             )}
           </section>
@@ -333,9 +252,7 @@ export default function ExplorePage() {
               </div>
             ) : (
               <div className="mx-5 h-32 border border-dashed border-white/10 flex items-center justify-center">
-                <p className="text-gray-600 text-[12px] font-mono">
-                  No events found
-                </p>
+                <p className="text-gray-600 text-[12px] font-mono">No events found</p>
               </div>
             )}
           </section>
@@ -357,104 +274,12 @@ export default function ExplorePage() {
                 ))
               ) : (
                 <div className="w-full h-32 border border-dashed border-white/10 flex items-center justify-center">
-                  <p className="text-gray-600 text-[12px] font-mono">
-                    No events found
-                  </p>
+                  <p className="text-gray-600 text-[12px] font-mono">No events found</p>
                 </div>
               )}
             </div>
           </section>
         </>
-      )}
-      {/* ── Filter modal ── */}
-      {showFilterModal && (
-        <div
-          className="fixed inset-0 z-[60] flex items-end bg-black/70 backdrop-blur-sm pb-24"
-          onClick={(e) => { if (e.target === e.currentTarget) setShowFilterModal(false); }}
-        >
-          <div className="w-full max-w-lg mx-auto bg-[#111118] border-t border-white/10 px-5 pt-6 pb-6">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="font-display font-black text-[15px] uppercase tracking-widest text-white">
-                Filter Events
-              </h3>
-              <button
-                onClick={() => setShowFilterModal(false)}
-                className="w-8 h-8 flex items-center justify-center text-gray-500 active:scale-90 transition-transform"
-              >
-                <X size={18} strokeWidth={2.5} />
-              </button>
-            </div>
-
-            {/* Date */}
-            <div className="mb-6">
-              <p className="text-[10px] text-gray-600 uppercase tracking-widest font-black mb-3">Date</p>
-              <div className="flex gap-2 flex-wrap">
-                {([ ["any","Any"], ["today","Today"], ["week","This Week"], ["month","This Month"] ] as const).map(([val, label]) => (
-                  <button
-                    key={val}
-                    onClick={() => setDraftDate(val)}
-                    className={`px-3 h-8 text-[11px] font-black uppercase tracking-wide border transition-all active:scale-95 ${
-                      draftDate === val
-                        ? "bg-primary-light border-primary-light text-black"
-                        : "border-white/10 text-gray-500"
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Price */}
-            <div className="mb-6">
-              <p className="text-[10px] text-gray-600 uppercase tracking-widest font-black mb-3">Price</p>
-              <div className="flex gap-2 flex-wrap">
-                {([ ["any","Any"], ["free","Free"], ["low","Under 10k"], ["mid","Under 50k"] ] as const).map(([val, label]) => (
-                  <button
-                    key={val}
-                    onClick={() => setDraftPrice(val)}
-                    className={`px-3 h-8 text-[11px] font-black uppercase tracking-wide border transition-all active:scale-95 ${
-                      draftPrice === val
-                        ? "bg-primary-light border-primary-light text-black"
-                        : "border-white/10 text-gray-500"
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Location */}
-            <div className="mb-6">
-              <p className="text-[10px] text-gray-600 uppercase tracking-widest font-black mb-3">Location</p>
-              <input
-                type="text"
-                placeholder="City or venue..."
-                value={draftLocation}
-                onChange={(e) => setDraftLocation(e.target.value)}
-                className="w-full bg-[#0c0c12] border border-white/8 px-4 h-11 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-primary-light transition-colors"
-              />
-            </div>
-
-            {/* Actions */}
-            <div className="flex gap-3">
-              <button
-                onClick={() => { setDraftDate("any"); setDraftPrice("any"); setDraftLocation(""); setFilterDate("any"); setFilterPrice("any"); setFilterLocation(""); setShowFilterModal(false); }}
-                className="flex-1 h-11 border border-white/10 text-gray-500 text-[11px] font-black uppercase tracking-widest active:scale-95 transition-transform"
-              >
-                Reset
-              </button>
-              <button
-                onClick={() => { setFilterDate(draftDate); setFilterPrice(draftPrice); setFilterLocation(draftLocation); setShowFilterModal(false); }}
-                className="flex-1 h-11 bg-primary-light text-black text-[11px] font-black uppercase tracking-widest active:scale-95 transition-transform"
-              >
-                Apply
-              </button>
-            </div>
-          </div>
-        </div>
       )}
     </div>
     </PullToRefresh>

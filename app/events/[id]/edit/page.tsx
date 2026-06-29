@@ -450,7 +450,7 @@ export default function EditEventPage() {
           <button
             onClick={handleSubmit}
             disabled={submitting}
-            className="w-full h-[50px] bg-primary-light font-display font-black text-[15px] uppercase tracking-widest text-white active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-60"
+            className="w-full h-[50px] bg-secondary font-display font-black text-[15px] uppercase tracking-widest text-white active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-60"
           >
             {submitting ? (
               <><Loader2 size={18} className="animate-spin" />Saving...</>

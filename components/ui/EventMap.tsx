@@ -42,11 +42,11 @@ export default function EventMap({ lat, lng }: EventMapProps) {
           <div style={{
             width: 32,
             height: 32,
-            backgroundColor: "#00DF81",
+            backgroundColor: "#457534",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            boxShadow: "0 2px 10px rgba(0,223,129,0.5)",
+            boxShadow: "0 2px 10px rgba(69,117,52,0.5)",
           }}>
             <svg viewBox="0 0 24 24" width="16" height="16" fill="white">
               <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
@@ -57,7 +57,7 @@ export default function EventMap({ lat, lng }: EventMapProps) {
             height: 0,
             borderLeft: "6px solid transparent",
             borderRight: "6px solid transparent",
-            borderTop: "7px solid #00DF81",
+            borderTop: "7px solid #457534",
           }} />
         </div>
       </OverlayViewF>

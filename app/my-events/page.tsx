@@ -95,7 +95,7 @@ export default function MyEventsPage() {
           </div>
           <button
             onClick={() => router.push("/events/create")}
-            className="w-11 h-11 bg-primary-light flex items-center justify-center active:scale-90 transition-transform flex-shrink-0"
+            className="w-11 h-11 bg-secondary flex items-center justify-center active:scale-90 transition-transform flex-shrink-0"
           >
             <Plus size={20} strokeWidth={2.5} className="text-black" />
           </button>
@@ -123,7 +123,7 @@ export default function MyEventsPage() {
             </p>
             <button
               onClick={() => router.push("/events/create")}
-              className="mt-2 px-6 h-11 bg-primary-light text-black text-[11px] font-black uppercase tracking-widest active:scale-95 transition-transform"
+              className="mt-2 px-6 h-11 bg-secondary text-white text-[11px] font-black uppercase tracking-widest active:scale-95 transition-transform"
             >
               Create Event
             </button>

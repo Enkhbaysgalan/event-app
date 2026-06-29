@@ -120,7 +120,7 @@ export default function LoginPage() {
                   onClick={() => setRole(r)}
                   className={`flex-1 py-3 text-[11px] font-black uppercase tracking-widest border transition-all duration-200 ${
                     role === r
-                      ? "bg-primary-light border-primary-light text-black"
+                      ? "bg-primary border-primary text-black"
                       : "border-white/8 text-gray-500 hover:border-white/20 hover:text-gray-300"
                   }`}
                 >
@@ -139,7 +139,7 @@ export default function LoginPage() {
               placeholder="Your name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-[#111118] border border-white/8 px-4 h-11 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-primary-light transition-colors"
+              className="w-full bg-[#111118] border border-white/8 px-4 h-11 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-primary transition-colors"
             />
           )}
           <input
@@ -147,14 +147,14 @@ export default function LoginPage() {
             placeholder="Email address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full bg-[#111118] border border-white/8 px-4 h-11 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-primary-light transition-colors"
+            className="w-full bg-[#111118] border border-white/8 px-4 h-11 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-primary transition-colors"
           />
           <input
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full bg-[#111118] border border-white/8 px-4 h-11 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-primary-light transition-colors"
+            className="w-full bg-[#111118] border border-white/8 px-4 h-11 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-primary transition-colors"
           />
         </div>
 
@@ -169,7 +169,7 @@ export default function LoginPage() {
         <button
           onClick={handleSubmit}
           disabled={loading}
-          className="mt-5 w-full h-12 bg-primary-light text-black font-black text-[12px] uppercase tracking-widest active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="mt-5 w-full h-12 bg-secondary text-white font-black text-[12px] uppercase tracking-widest active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading
             ? "Please wait..."
