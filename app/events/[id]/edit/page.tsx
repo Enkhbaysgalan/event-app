@@ -24,6 +24,7 @@ import {
 import dynamic from "next/dynamic";
 import type { LocationValue } from "@/components/ui/LocationPicker";
 import { getBlurDataUrl } from "@/lib/blur";
+import { CATEGORIES } from "@/lib/categories";
 
 const LocationPicker = dynamic(() => import("@/components/ui/LocationPicker"), { ssr: false });
 
@@ -47,8 +48,6 @@ interface FormData {
   capacity: string;
   artists: Artist[];
 }
-
-const CATEGORIES = ["Music", "Tech", "Art", "Sport", "Food", "Business", "Fashion", "Other"];
 
 function Field({ label, icon: Icon, error, children }: {
   label: string;
